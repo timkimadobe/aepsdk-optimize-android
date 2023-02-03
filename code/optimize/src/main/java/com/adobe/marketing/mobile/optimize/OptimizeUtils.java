@@ -14,15 +14,16 @@ package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
 
-import com.adobe.marketing.mobile.LoggingMode;
-import com.adobe.marketing.mobile.MobileCore;
+import com.adobe.marketing.mobile.AdobeError;
+import com.adobe.marketing.mobile.services.Log;
 
 import java.util.Collection;
 import java.util.Map;
 
-import static com.adobe.marketing.mobile.optimize.OptimizeConstants.LOG_TAG;
-
 class OptimizeUtils {
+
+    private static final String SELF_TAG = "OptimizeUtils";
+
     /**
      * Checks if the given {@code collection} is null or empty.
      *
@@ -85,8 +86,35 @@ class OptimizeUtils {
         try {
             output = new String(Base64.decode(str, Base64.DEFAULT));
         } catch(final IllegalArgumentException ex) {
-            MobileCore.log(LoggingMode.DEBUG, LOG_TAG, String.format("Base64 decode failed for the given string (%s) with exception: %s", str, ex.getLocalizedMessage()));
+            Log.debug(OptimizeConstants.LOG_TAG, SELF_TAG, String.format("Base64 decode failed for the given string (%s) with exception: %s", str, ex.getLocalizedMessage()));
         }
         return output;
+    }
+
+    /**
+     * Determines the {@code AdobeError} provided the error code.
+     *
+     * @return {@link AdobeError} corresponding to the given error code, or {@link AdobeError#UNEXPECTED_ERROR} otherwise.
+     */
+    @SuppressWarnings("magicnumber")
+    static AdobeError convertToAdobeError(final int errorCode) {
+        final AdobeError error;
+        switch (errorCode) {
+            case 0:
+                error = AdobeError.UNEXPECTED_ERROR;
+                break;
+            case 1:
+                error = AdobeError.CALLBACK_TIMEOUT;
+                break;
+            case 2:
+                error = AdobeError.CALLBACK_NULL;
+                break;
+            case 11:
+                error = AdobeError.EXTENSION_NOT_INITIALIZED;
+                break;
+            default:
+                error = AdobeError.UNEXPECTED_ERROR;
+        }
+        return error;
     }
 }
