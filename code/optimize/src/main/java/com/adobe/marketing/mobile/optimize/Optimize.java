@@ -50,22 +50,6 @@ public class Optimize {
     }
 
     /**
-     * Registers the extension with the Mobile Core.
-     * <p>
-     * Note: This method should be called only once in your application class.
-     */
-    @Deprecated
-    public static void registerExtension() {
-        MobileCore.registerExtension(OptimizeExtension.class, extensionError -> {
-            if (extensionError == null) {
-                return;
-            }
-            Log.error(OptimizeConstants.LOG_TAG, SELF_TAG,
-                    "An error occurred while registering the Optimize extension: %s ", extensionError.getErrorName());
-        });
-    }
-
-    /**
      * This API dispatches an Event for the Edge network extension to fetch decision propositions, for the provided decision scopes list, from the decisioning services enabled in the Experience Edge network.
      * <p>
      * The returned decision propositions are cached in-memory in the Optimize SDK extension and can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.

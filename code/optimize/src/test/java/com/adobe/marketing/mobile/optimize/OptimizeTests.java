@@ -17,8 +17,6 @@ import android.util.Base64;
 import com.adobe.marketing.mobile.AdobeCallbackWithError;
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
-import com.adobe.marketing.mobile.ExtensionError;
-import com.adobe.marketing.mobile.ExtensionErrorCallback;
 import com.adobe.marketing.mobile.MobileCore;
 import com.adobe.marketing.mobile.services.Log;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,52 +55,6 @@ public class OptimizeTests {
         final String extensionVersion = Optimize.extensionVersion();
         Assert.assertEquals("extensionVersion API should return the correct version string.", "2.0.2",
                 extensionVersion);
-    }
-
-    @Test
-    public void test_registerExtension() {
-        try (MockedStatic<MobileCore> mobileCoreMockedStatic = Mockito.mockStatic(MobileCore.class)) {
-            // setup
-            final ArgumentCaptor<Class> extensionClassCaptor = ArgumentCaptor.forClass(Class.class);
-            final ArgumentCaptor<ExtensionErrorCallback> callbackCaptor = ArgumentCaptor.forClass(
-                    ExtensionErrorCallback.class
-            );
-            mobileCoreMockedStatic
-                    .when(() -> MobileCore.registerExtension(extensionClassCaptor.capture(), callbackCaptor.capture()))
-                    .thenReturn(true);
-            // test
-            Optimize.registerExtension();
-
-            // verify: happy
-            Assert.assertNotNull(callbackCaptor.getValue());
-            Assert.assertEquals(OptimizeExtension.class, extensionClassCaptor.getValue());
-            // verify: error callback was called
-            callbackCaptor.getValue().error(null);
-        }
-    }
-
-    @Test
-    public void test_registerExtension_extensionError() {
-        try (MockedStatic<MobileCore> mobileCoreMockedStatic = Mockito.mockStatic(MobileCore.class);
-             MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
-            // setup
-            final ArgumentCaptor<Class> extensionClassCaptor = ArgumentCaptor.forClass(Class.class);
-            final ArgumentCaptor<ExtensionErrorCallback> callbackCaptor = ArgumentCaptor.forClass(
-                    ExtensionErrorCallback.class
-            );
-            mobileCoreMockedStatic
-                    .when(() -> MobileCore.registerExtension(extensionClassCaptor.capture(), callbackCaptor.capture()))
-                    .thenReturn(true);
-            // test
-            Optimize.registerExtension();
-
-            // verify: happy
-            Assert.assertNotNull(callbackCaptor.getValue());
-            Assert.assertEquals(OptimizeExtension.class, extensionClassCaptor.getValue());
-
-            callbackCaptor.getValue().error(ExtensionError.UNEXPECTED_ERROR);
-            logMockedStatic.verify(() -> Log.error(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()));
-        }
     }
 
     @Test
