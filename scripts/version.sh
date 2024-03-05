@@ -10,8 +10,8 @@ VERSION_REGEX="[0-9]+\.[0-9]+\.[0-9]+"
 
 GRADLE_PROPERTIES_FILE=$ROOT_DIR"/code/gradle.properties"
 
-CONSTANTS_FILE=$ROOT_DIR"/code/optimize/src/main/java/com/adobe/marketing/OptimizeConstants.java"
-TEST_CONSTANTS_FILE=$ROOT_DIR"/code/optimize/src/androidTest/java/com/adobe/marketing/mobile/OptimizeTestConstants.java"
+CONSTANTS_FILE=$ROOT_DIR"/code/optimize/src/main/java/com/adobe/marketing/mobile/optimize/OptimizeConstants.java"
+TEST_CONSTANTS_FILE=$ROOT_DIR"/code/optimize/src/androidTest/java/com/adobe/marketing/mobile/optimize/OptimizeTestConstants.java"
 # Java files
 EXTENSION_VERSION_REGEX="^.*String EXTENSION_VERSION *= *"
 # Kotlin files
