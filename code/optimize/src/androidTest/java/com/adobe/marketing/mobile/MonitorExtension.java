@@ -1,26 +1,22 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
- This file is licensed to you under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License. You may obtain a copy
- of the License at http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software distributed under
- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- OF ANY KIND, either express or implied. See the License for the specific language
- governing permissions and limitations under the License.
- */
+  Copyright 2021 Adobe. All rights reserved.
+  This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License. You may obtain a copy
+  of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software distributed under
+  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  OF ANY KIND, either express or implied. See the License for the specific language
+  governing permissions and limitations under the License.
+*/
 
 package com.adobe.marketing.mobile;
 
 import androidx.annotation.NonNull;
-
 import com.adobe.marketing.mobile.optimize.ADBCountDownLatch;
 import com.adobe.marketing.mobile.optimize.OptimizeTestConstants;
 import com.adobe.marketing.mobile.services.Log;
 import com.adobe.marketing.mobile.util.DataReader;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,10 +24,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A third party extension class aiding for assertion against dispatched events, shared state
- * and XDM shared state.
+ * A third party extension class aiding for assertion against dispatched events, shared state and
+ * XDM shared state.
  */
-
 public class MonitorExtension extends Extension {
 
     private static final String SELF_TAG = "MonitorExtension";
@@ -44,8 +39,7 @@ public class MonitorExtension extends Extension {
         super(extensionApi);
     }
 
-    @NonNull
-    @Override
+    @NonNull @Override
     protected String getName() {
         return "MonitorExtension";
     }
@@ -56,11 +50,13 @@ public class MonitorExtension extends Extension {
 
     @Override
     protected void onRegistered() {
-        getApi().registerEventListener(EventType.WILDCARD, EventSource.WILDCARD, this::wildcardProcessor);
+        getApi().registerEventListener(
+                        EventType.WILDCARD, EventSource.WILDCARD, this::wildcardProcessor);
     }
 
     /**
      * Add an event to the list of expected events.
+     *
      * @param type the type of the event.
      * @param source the source of the event.
      * @param count the number of events expected to be received.
@@ -78,9 +74,7 @@ public class MonitorExtension extends Extension {
         return receivedEvents;
     }
 
-    /**
-     * Resets the map of received and expected events.
-     */
+    /** Resets the map of received and expected events. */
     public static void reset() {
         Log.trace(OptimizeTestConstants.LOG_TAG, SELF_TAG, "Reset expected and received events.");
         receivedEvents.clear();
@@ -88,21 +82,22 @@ public class MonitorExtension extends Extension {
     }
 
     /**
-     * Processor for all heard events.
-     * If the event type is of this Monitor Extension, then
-     * the action is performed per the event source.
-     * All other events are added to the map of received events. If the event is in the map
-     * of expected events, its latch is counted down.
+     * Processor for all heard events. If the event type is of this Monitor Extension, then the
+     * action is performed per the event source. All other events are added to the map of received
+     * events. If the event is in the map of expected events, its latch is counted down.
      *
      * @param event incoming {@link Event} object to be processed.
      */
     public void wildcardProcessor(final Event event) {
         if (OptimizeTestConstants.EventType.MONITOR.equalsIgnoreCase(event.getType())) {
-            if (OptimizeTestConstants.EventSource.SHARED_STATE_REQUEST.equalsIgnoreCase(event.getSource())) {
+            if (OptimizeTestConstants.EventSource.SHARED_STATE_REQUEST.equalsIgnoreCase(
+                    event.getSource())) {
                 processSharedStateRequest(event);
-            } else if (OptimizeTestConstants.EventSource.XDM_SHARED_STATE_REQUEST.equalsIgnoreCase(event.getSource())) {
+            } else if (OptimizeTestConstants.EventSource.XDM_SHARED_STATE_REQUEST.equalsIgnoreCase(
+                    event.getSource())) {
                 processXDMSharedStateRequest(event);
-            } else if (OptimizeTestConstants.EventSource.UNREGISTER.equalsIgnoreCase(event.getSource())) {
+            } else if (OptimizeTestConstants.EventSource.UNREGISTER.equalsIgnoreCase(
+                    event.getSource())) {
                 processUnregisterRequest(event);
             }
 
@@ -111,7 +106,10 @@ public class MonitorExtension extends Extension {
 
         EventSpec eventSpec = new EventSpec(event.getSource(), event.getType());
 
-        Log.debug(OptimizeTestConstants.LOG_TAG, SELF_TAG, "Received and processing event " + eventSpec);
+        Log.debug(
+                OptimizeTestConstants.LOG_TAG,
+                SELF_TAG,
+                "Received and processing event " + eventSpec);
 
         if (!receivedEvents.containsKey(eventSpec)) {
             receivedEvents.put(eventSpec, new ArrayList<>());
@@ -119,17 +117,16 @@ public class MonitorExtension extends Extension {
 
         receivedEvents.get(eventSpec).add(event);
 
-
         if (expectedEvents.containsKey(eventSpec)) {
             expectedEvents.get(eventSpec).countDown();
         }
 
-        SharedStateResult sharedStateResult = getApi().getSharedState(
-                "com.adobe.module.configuration",
-                event,
-                false,
-                SharedStateResolution.LAST_SET
-        );
+        SharedStateResult sharedStateResult =
+                getApi().getSharedState(
+                                "com.adobe.module.configuration",
+                                event,
+                                false,
+                                SharedStateResolution.LAST_SET);
         if (configurationMonitor != null) {
             configurationMonitor.call(sharedStateResult.getValue());
         }
@@ -137,6 +134,7 @@ public class MonitorExtension extends Extension {
 
     /**
      * Processor which unregisters this extension.
+     *
      * @param event event incoming {@link Event} object to be processed.
      */
     private void processUnregisterRequest(final Event event) {
@@ -147,6 +145,7 @@ public class MonitorExtension extends Extension {
     /**
      * Processor which retrieves and dispatches the XDM shared state for the state owner specified
      * in the request.
+     *
      * @param event event incoming {@link Event} object to be processed.
      */
     private void processXDMSharedStateRequest(final Event event) {
@@ -156,26 +155,34 @@ public class MonitorExtension extends Extension {
             return;
         }
 
-        String stateOwner = DataReader.optString(eventData, OptimizeTestConstants.EventDataKeys.STATE_OWNER, null);
+        String stateOwner =
+                DataReader.optString(
+                        eventData, OptimizeTestConstants.EventDataKeys.STATE_OWNER, null);
 
         if (stateOwner == null) {
             return;
         }
 
-        SharedStateResult sharedState = getApi().getXDMSharedState(stateOwner, event, false, SharedStateResolution.LAST_SET);
+        SharedStateResult sharedState =
+                getApi().getXDMSharedState(
+                                stateOwner, event, false, SharedStateResolution.LAST_SET);
 
-        Event responseEvent = new Event.Builder("Get Shared State Response", OptimizeTestConstants.EventType.MONITOR,
-                OptimizeTestConstants.EventSource.SHARED_STATE_RESPONSE)
-                .setEventData(sharedState == null ? null : sharedState.getValue())
-                .inResponseToEvent(event)
-                .build();
+        Event responseEvent =
+                new Event.Builder(
+                                "Get Shared State Response",
+                                OptimizeTestConstants.EventType.MONITOR,
+                                OptimizeTestConstants.EventSource.SHARED_STATE_RESPONSE)
+                        .setEventData(sharedState == null ? null : sharedState.getValue())
+                        .inResponseToEvent(event)
+                        .build();
 
         MobileCore.dispatchEvent(responseEvent);
     }
 
     /**
-     * Processor which retrieves and dispatches the shared state for the state owner specified
-     * in the request.
+     * Processor which retrieves and dispatches the shared state for the state owner specified in
+     * the request.
+     *
      * @param event event incoming {@link Event} object to be processed.
      */
     private void processSharedStateRequest(final Event event) {
@@ -185,19 +192,25 @@ public class MonitorExtension extends Extension {
             return;
         }
 
-        String stateOwner = DataReader.optString(eventData, OptimizeTestConstants.EventDataKeys.STATE_OWNER, null);
+        String stateOwner =
+                DataReader.optString(
+                        eventData, OptimizeTestConstants.EventDataKeys.STATE_OWNER, null);
 
         if (stateOwner == null) {
             return;
         }
 
-        SharedStateResult sharedState = getApi().getSharedState(stateOwner, event, false, SharedStateResolution.LAST_SET);
+        SharedStateResult sharedState =
+                getApi().getSharedState(stateOwner, event, false, SharedStateResolution.LAST_SET);
 
-        Event responseEvent = new Event.Builder("Get Shared State Response", OptimizeTestConstants.EventType.MONITOR,
-                OptimizeTestConstants.EventSource.SHARED_STATE_RESPONSE)
-                .setEventData(sharedState == null ? null : sharedState.getValue())
-                .inResponseToEvent(event)
-                .build();
+        Event responseEvent =
+                new Event.Builder(
+                                "Get Shared State Response",
+                                OptimizeTestConstants.EventType.MONITOR,
+                                OptimizeTestConstants.EventSource.SHARED_STATE_RESPONSE)
+                        .setEventData(sharedState == null ? null : sharedState.getValue())
+                        .inResponseToEvent(event)
+                        .build();
 
         MobileCore.dispatchEvent(responseEvent);
     }
@@ -210,9 +223,7 @@ public class MonitorExtension extends Extension {
         void call(Map<String, Object> configurationState);
     }
 
-    /**
-     * Class defining {@link Event} specifications, contains Event's source and type.
-     */
+    /** Class defining {@link Event} specifications, contains Event's source and type. */
     public static class EventSpec {
         final String source;
         final String type;
@@ -231,8 +242,7 @@ public class MonitorExtension extends Extension {
             this.type = type.toLowerCase();
         }
 
-        @NonNull
-        @Override
+        @NonNull @Override
         public String toString() {
             return "type '" + type + "' and source '" + source + "'";
         }
@@ -248,8 +258,7 @@ public class MonitorExtension extends Extension {
             }
 
             EventSpec eventSpec = (EventSpec) o;
-            return Objects.equals(source, eventSpec.source) &&
-                    Objects.equals(type, eventSpec.type);
+            return Objects.equals(source, eventSpec.source) && Objects.equals(type, eventSpec.type);
         }
 
         @Override

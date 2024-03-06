@@ -1,20 +1,18 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
- This file is licensed to you under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License. You may obtain a copy
- of the License at http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software distributed under
- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- OF ANY KIND, either express or implied. See the License for the specific language
- governing permissions and limitations under the License.
- */
+  Copyright 2021 Adobe. All rights reserved.
+  This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License. You may obtain a copy
+  of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software distributed under
+  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  OF ANY KIND, either express or implied. See the License for the specific language
+  governing permissions and limitations under the License.
+*/
 
 package com.adobe.marketing.mobile.optimize;
 
 import com.adobe.marketing.mobile.services.Log;
 import com.adobe.marketing.mobile.util.DataReader;
-
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,27 +24,32 @@ public class Proposition {
 
     private static final String SELF_TAG = "Proposition";
 
-    final private String id;
-    final private List<Offer> offers;
-    final private String scope;
-    final private Map<String, Object> scopeDetails;
+    private final String id;
+    private final List<Offer> offers;
+    private final String scope;
+    private final Map<String, Object> scopeDetails;
 
     /**
-     * Constructor creates a {@code Proposition} using the provided proposition {@code id}, {@code offers}, {@code scope} and {@code scopeDetails}.
+     * Constructor creates a {@code Proposition} using the provided proposition {@code id}, {@code
+     * offers}, {@code scope} and {@code scopeDetails}.
      *
      * @param id {@link String} containing proposition identifier.
      * @param offers {@code List<Offer>} containing proposition items.
      * @param scope {@code String} containing encoded scope.
      * @param scopeDetails {@code Map<String, Object>} containing scope details.
      */
-    Proposition(final String id, final List<Offer> offers, final String scope, final Map<String, Object> scopeDetails) {
+    Proposition(
+            final String id,
+            final List<Offer> offers,
+            final String scope,
+            final Map<String, Object> scopeDetails) {
         this.id = id != null ? id : "";
         this.scope = scope != null ? scope : "";
         this.scopeDetails = scopeDetails != null ? scopeDetails : new HashMap<>();
 
         this.offers = offers != null ? offers : new ArrayList<>();
         // Setting a soft reference to Proposition in each Offer
-        for (final Offer o: this.offers) {
+        for (final Offer o : this.offers) {
             if (o.propositionReference == null) {
                 o.propositionReference = new SoftReference<>(this);
             }
@@ -90,9 +93,10 @@ public class Proposition {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition Reference} field group from this {@code Proposition}.
-     * <p>
-     * The returned XDM data does not contain {@code eventType} for the Experience Event.
+     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition
+     * Reference} field group from this {@code Proposition}.
+     *
+     * <p>The returned XDM data does not contain {@code eventType} for the Experience Event.
      *
      * @return {@code Map<String, Object>} containing the XDM data for the proposition reference.
      */
@@ -111,34 +115,50 @@ public class Proposition {
 
     /**
      * Creates a {@code Proposition} object using information provided in {@code data} map.
-     * <p>
-     * This method returns null if the provided {@code data} is empty or null or if it does not contain required info for creating a {@link Proposition} object.
+     *
+     * <p>This method returns null if the provided {@code data} is empty or null or if it does not
+     * contain required info for creating a {@link Proposition} object.
      *
      * @param data {@code Map<String, Object>} containing proposition data.
      * @return {@code Proposition} object or null.
      */
     public static Proposition fromEventData(final Map<String, Object> data) {
         if (OptimizeUtils.isNullOrEmpty(data)) {
-            Log.debug(OptimizeConstants.LOG_TAG, SELF_TAG, "Cannot create Proposition object, provided data Map is empty or null.");
+            Log.debug(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "Cannot create Proposition object, provided data Map is empty or null.");
             return null;
         }
 
         try {
             final String id = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_ID);
             if (OptimizeUtils.isNullOrEmpty(id)) {
-                Log.debug(OptimizeConstants.LOG_TAG, SELF_TAG, "Cannot create Proposition object, provided data does not contain proposition identifier.");
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "Cannot create Proposition object, provided data does not contain"
+                                + " proposition identifier.");
                 return null;
             }
 
             final String scope = (String) data.get(OptimizeConstants.JsonKeys.PAYLOAD_SCOPE);
             if (OptimizeUtils.isNullOrEmpty(scope)) {
-                Log.debug(OptimizeConstants.LOG_TAG, SELF_TAG, "Cannot create Proposition object, provided data does not contain proposition scope.");
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "Cannot create Proposition object, provided data does not contain"
+                                + " proposition scope.");
                 return null;
             }
 
-            final Map<String, Object> scopeDetails = DataReader.getTypedMap(Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS);
+            final Map<String, Object> scopeDetails =
+                    DataReader.getTypedMap(
+                            Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS);
 
-            final List<Map<String, Object>> items = DataReader.getTypedListOfMap(Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
+            final List<Map<String, Object>> items =
+                    DataReader.getTypedListOfMap(
+                            Object.class, data, OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
             List<Offer> offers = new ArrayList<>();
             if (items != null) {
                 for (Map<String, Object> item : items) {
@@ -152,7 +172,10 @@ public class Proposition {
             return new Proposition(id, offers, scope, scopeDetails);
 
         } catch (Exception e) {
-            Log.warning(OptimizeConstants.LOG_TAG, SELF_TAG, "Cannot create Proposition object, provided data contains invalid fields.");
+            Log.warning(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "Cannot create Proposition object, provided data contains invalid fields.");
             return null;
         }
     }
@@ -169,7 +192,7 @@ public class Proposition {
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_SCOPEDETAILS, this.scopeDetails);
 
         List<Map<String, Object>> offersList = new ArrayList<>();
-        for (final Offer offer: this.offers) {
+        for (final Offer offer : this.offers) {
             offersList.add(offer.toEventData());
         }
         propositionMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEMS, offersList);
@@ -185,7 +208,9 @@ public class Proposition {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (offers != null ? !offers.equals(that.offers) : that.offers != null) return false;
         if (scope != null ? !scope.equals(that.scope) : that.scope != null) return false;
-        return scopeDetails != null ? scopeDetails.equals(that.scopeDetails) : that.scopeDetails == null;
+        return scopeDetails != null
+                ? scopeDetails.equals(that.scopeDetails)
+                : that.scopeDetails == null;
     }
 
     @Override
@@ -193,4 +218,3 @@ public class Proposition {
         return Objects.hash(id, offers, scope, scopeDetails);
     }
 }
-
