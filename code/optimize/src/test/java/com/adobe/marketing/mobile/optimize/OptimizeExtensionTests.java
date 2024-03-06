@@ -72,7 +72,7 @@ public class OptimizeExtensionTests {
     public void test_getVersion() {
         // test
         final String extensionVersion = extension.getVersion();
-        Assert.assertEquals("getVersion should return the correct extension version.", "2.0.2", extensionVersion);
+        Assert.assertEquals("getVersion should return the correct extension version.", OptimizeConstants.EXTENSION_VERSION, extensionVersion);
     }
 
     @Test
