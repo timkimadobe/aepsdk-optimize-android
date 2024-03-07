@@ -92,93 +92,97 @@ public class DecisionScope {
         }
 
         final String jsonString = OptimizeUtils.base64Decode(name);
-        if (jsonString != null) {
-            try {
-                final JSONObject jsonObject = new JSONObject(jsonString);
-                if (jsonObject.has(OptimizeConstants.XDM_NAME)) {
-                    final String scopeName = jsonObject.getString(OptimizeConstants.XDM_NAME);
-                    if (OptimizeUtils.isNullOrEmpty(scopeName)) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Scope name is null or empty.",
-                                name);
-                        return false;
-                    }
-                } else if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
-                    final String activityId =
-                            jsonObject.getString(OptimizeConstants.XDM_ACTIVITY_ID);
-                    if (OptimizeUtils.isNullOrEmpty(activityId)) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Activity Id is null or empty.",
-                                name);
-                        return false;
-                    }
-
-                    final String placementId =
-                            jsonObject.getString(OptimizeConstants.XDM_PLACEMENT_ID);
-                    if (OptimizeUtils.isNullOrEmpty(placementId)) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Placement Id is null or empty.",
-                                name);
-                        return false;
-                    }
-
-                    final int itemCount =
-                            jsonObject.optInt(OptimizeConstants.XDM_ITEM_COUNT, DEFAULT_ITEM_COUNT);
-                    if (itemCount < DEFAULT_ITEM_COUNT) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Item count (%d) is invalid.",
-                                name,
-                                itemCount);
-                        return false;
-                    }
-                } else {
-                    final String activityId = jsonObject.getString(OptimizeConstants.ACTIVITY_ID);
-                    if (OptimizeUtils.isNullOrEmpty(activityId)) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Activity Id is null or empty.",
-                                name);
-                        return false;
-                    }
-
-                    final String placementId = jsonObject.getString(OptimizeConstants.PLACEMENT_ID);
-                    if (OptimizeUtils.isNullOrEmpty(placementId)) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Placement Id is null or empty.",
-                                name);
-                        return false;
-                    }
-
-                    final int itemCount =
-                            jsonObject.optInt(OptimizeConstants.ITEM_COUNT, DEFAULT_ITEM_COUNT);
-                    if (itemCount < DEFAULT_ITEM_COUNT) {
-                        Log.debug(
-                                OptimizeConstants.LOG_TAG,
-                                SELF_TAG,
-                                "Invalid scope (%s)! Item count (%d) is invalid.",
-                                name,
-                                itemCount);
-                        return false;
-                    }
+        if (OptimizeUtils.isNullOrEmpty(jsonString)) {
+            Log.debug(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "Invalid scope (%s)! Decoded Scope name is null or empty.",
+                    name);
+            return true;
+        }
+        try {
+            final JSONObject jsonObject = new JSONObject(jsonString);
+            if (jsonObject.has(OptimizeConstants.XDM_NAME)) {
+                final String scopeName = jsonObject.getString(OptimizeConstants.XDM_NAME);
+                if (OptimizeUtils.isNullOrEmpty(scopeName)) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Scope name is null or empty.",
+                            name);
+                    return false;
                 }
-            } catch (JSONException e) {
-                Log.warning(
-                        OptimizeConstants.LOG_TAG,
-                        SELF_TAG,
-                        "Scope name (%s), when decoded, does not contain a JSON string.",
-                        name);
+            } else if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
+                final String activityId = jsonObject.getString(OptimizeConstants.XDM_ACTIVITY_ID);
+                if (OptimizeUtils.isNullOrEmpty(activityId)) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Activity Id is null or empty.",
+                            name);
+                    return false;
+                }
+
+                final String placementId = jsonObject.getString(OptimizeConstants.XDM_PLACEMENT_ID);
+                if (OptimizeUtils.isNullOrEmpty(placementId)) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Placement Id is null or empty.",
+                            name);
+                    return false;
+                }
+
+                final int itemCount =
+                        jsonObject.optInt(OptimizeConstants.XDM_ITEM_COUNT, DEFAULT_ITEM_COUNT);
+                if (itemCount < DEFAULT_ITEM_COUNT) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Item count (%d) is invalid.",
+                            name,
+                            itemCount);
+                    return false;
+                }
+            } else {
+                final String activityId = jsonObject.getString(OptimizeConstants.ACTIVITY_ID);
+                if (OptimizeUtils.isNullOrEmpty(activityId)) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Activity Id is null or empty.",
+                            name);
+                    return false;
+                }
+
+                final String placementId = jsonObject.getString(OptimizeConstants.PLACEMENT_ID);
+                if (OptimizeUtils.isNullOrEmpty(placementId)) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Placement Id is null or empty.",
+                            name);
+                    return false;
+                }
+
+                final int itemCount =
+                        jsonObject.optInt(OptimizeConstants.ITEM_COUNT, DEFAULT_ITEM_COUNT);
+                if (itemCount < DEFAULT_ITEM_COUNT) {
+                    Log.debug(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "Invalid scope (%s)! Item count (%d) is invalid.",
+                            name,
+                            itemCount);
+                    return false;
+                }
             }
+        } catch (JSONException e) {
+            Log.warning(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "Scope name (%s), when decoded, does not contain a JSON string.",
+                    name);
         }
 
         Log.trace(OptimizeConstants.LOG_TAG, SELF_TAG, "Decision scope (%s) is valid.", name);

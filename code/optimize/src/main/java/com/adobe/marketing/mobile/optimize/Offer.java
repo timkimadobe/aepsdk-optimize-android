@@ -490,15 +490,7 @@ public class Offer {
 
                 String content = null;
                 if (offerData.containsKey(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT)) {
-                    final Object offerContent =
-                            offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
-                    if (offerContent instanceof String) {
-                        content = (String) offerContent;
-                    } else {
-                        final JSONObject offerContentJson =
-                                new JSONObject((Map<String, Object>) offerContent);
-                        content = offerContentJson.toString();
-                    }
+                    content = getContentFromOfferData(offerData);
                 } else if (offerData.containsKey(
                         OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
                     content =
@@ -604,5 +596,18 @@ public class Offer {
     @Override
     public int hashCode() {
         return Objects.hash(id, etag, score, schema, type, language, content, characteristics);
+    }
+
+    private static String getContentFromOfferData(final Map<String, Object> offerData) {
+        final String content;
+        final Object offerContent =
+                offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT);
+        if (offerContent instanceof String) {
+            content = (String) offerContent;
+        } else {
+            final JSONObject offerContentJson = new JSONObject((Map<String, Object>) offerContent);
+            content = offerContentJson.toString();
+        }
+        return content;
     }
 }
