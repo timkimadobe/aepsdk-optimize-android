@@ -1,14 +1,13 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
- This file is licensed to you under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License. You may obtain a copy
- of the License at http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software distributed under
- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- OF ANY KIND, either express or implied. See the License for the specific language
- governing permissions and limitations under the License.
- */
+  Copyright 2021 Adobe. All rights reserved.
+  This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License. You may obtain a copy
+  of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software distributed under
+  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  OF ANY KIND, either express or implied. See the License for the specific language
+  governing permissions and limitations under the License.
+*/
 
 package com.adobe.marketing.mobile.optimize;
 
@@ -40,7 +39,8 @@ class OptimizeConstants {
         static final String CLEAR_PROPOSITIONS_REQUEST = "Optimize Clear Propositions Request";
         static final String OPTIMIZE_NOTIFICATION = "Optimize Notification";
         static final String EDGE_PERSONALIZATION_REQUEST = "Edge Optimize Personalization Request";
-        static final String EDGE_PROPOSITION_INTERACTION_REQUEST = "Edge Optimize Proposition Interaction Request";
+        static final String EDGE_PROPOSITION_INTERACTION_REQUEST =
+                "Edge Optimize Proposition Interaction Request";
         static final String OPTIMIZE_RESPONSE = "Optimize Response";
         static final String OPTIMIZE_UPDATE_COMPLETE = "Optimize Update Propositions Complete";
 
@@ -54,7 +54,6 @@ class OptimizeConstants {
 
         private EventType() {}
     }
-
 
     static final class EventSource {
         static final String REQUEST_CONTENT = "com.adobe.eventSource.requestContent";
@@ -103,6 +102,7 @@ class OptimizeConstants {
 
             private ErrorKeys() {}
         }
+
         private Edge() {}
     }
 
@@ -161,15 +161,22 @@ class OptimizeConstants {
         static final String EE_EVENT_TYPE_PROPOSITION_INTERACT = "decisioning.propositionInteract";
 
         // Target schemas
-        static final String SCHEMA_TARGET_HTML = "https://ns.adobe.com/personalization/html-content-item";
-        static final String SCHEMA_TARGET_JSON = "https://ns.adobe.com/personalization/json-content-item";
-        static final String SCHEMA_TARGET_DEFAULT = "https://ns.adobe.com/personalization/default-content-item";
+        static final String SCHEMA_TARGET_HTML =
+                "https://ns.adobe.com/personalization/html-content-item";
+        static final String SCHEMA_TARGET_JSON =
+                "https://ns.adobe.com/personalization/json-content-item";
+        static final String SCHEMA_TARGET_DEFAULT =
+                "https://ns.adobe.com/personalization/default-content-item";
 
         // Offer Decisioning schemas
-        static final String SCHEMA_OFFER_HTML = "https://ns.adobe.com/experience/offer-management/content-component-html";
-        static final String SCHEMA_OFFER_JSON = "https://ns.adobe.com/experience/offer-management/content-component-json";
-        static final String SCHEMA_OFFER_IMAGE = "https://ns.adobe.com/experience/offer-management/content-component-imagelink";
-        static final String SCHEMA_OFFER_TEXT = "https://ns.adobe.com/experience/offer-management/content-component-text";
+        static final String SCHEMA_OFFER_HTML =
+                "https://ns.adobe.com/experience/offer-management/content-component-html";
+        static final String SCHEMA_OFFER_JSON =
+                "https://ns.adobe.com/experience/offer-management/content-component-json";
+        static final String SCHEMA_OFFER_IMAGE =
+                "https://ns.adobe.com/experience/offer-management/content-component-imagelink";
+        static final String SCHEMA_OFFER_TEXT =
+                "https://ns.adobe.com/experience/offer-management/content-component-text";
 
         private JsonValues() {}
     }

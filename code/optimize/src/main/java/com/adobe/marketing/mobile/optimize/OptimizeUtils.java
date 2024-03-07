@@ -1,24 +1,21 @@
 /*
- Copyright 2021 Adobe. All rights reserved.
- This file is licensed to you under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License. You may obtain a copy
- of the License at http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software distributed under
- the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- OF ANY KIND, either express or implied. See the License for the specific language
- governing permissions and limitations under the License.
- */
+  Copyright 2021 Adobe. All rights reserved.
+  This file is licensed to you under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License. You may obtain a copy
+  of the License at http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software distributed under
+  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+  OF ANY KIND, either express or implied. See the License for the specific language
+  governing permissions and limitations under the License.
+*/
 
 package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
-
 import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.services.Log;
 import com.adobe.marketing.mobile.util.DataReader;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -30,7 +27,8 @@ class OptimizeUtils {
      * Checks if the given {@code collection} is null or empty.
      *
      * @param collection input {@code Collection<?>} to be tested.
-     * @return {@code boolean} result indicating whether the provided {@code collection} is null or empty.
+     * @return {@code boolean} result indicating whether the provided {@code collection} is null or
+     *     empty.
      */
     static boolean isNullOrEmpty(final Collection<?> collection) {
         return collection == null || collection.isEmpty();
@@ -58,8 +56,8 @@ class OptimizeUtils {
 
     /**
      * Base64 encode the given {@code String}.
-     * <p>
-     * This method returns the provided {@code str} value if it is null or empty.
+     *
+     * <p>This method returns the provided {@code str} value if it is null or empty.
      *
      * @param str input {@link String} to be encoded.
      * @return {@code String} containing the Base64 encoded value.
@@ -73,8 +71,9 @@ class OptimizeUtils {
 
     /**
      * Base64 decode the given {@code String}.
-     * <p>
-     * This method returns the provided {@code str} value if it is null or empty. It returns null if the base64 decode fails.
+     *
+     * <p>This method returns the provided {@code str} value if it is null or empty. It returns null
+     * if the base64 decode fails.
      *
      * @param str input {@link String} to be decoded.
      * @return {@code String} containing the Base64 decoded value.
@@ -87,8 +86,13 @@ class OptimizeUtils {
         String output = null;
         try {
             output = new String(Base64.decode(str, Base64.DEFAULT));
-        } catch(final IllegalArgumentException ex) {
-            Log.debug(OptimizeConstants.LOG_TAG, SELF_TAG, String.format("Base64 decode failed for the given string (%s) with exception: %s", str, ex.getLocalizedMessage()));
+        } catch (final IllegalArgumentException ex) {
+            Log.debug(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    String.format(
+                            "Base64 decode failed for the given string (%s) with exception: %s",
+                            str, ex.getLocalizedMessage()));
         }
         return output;
     }
@@ -96,7 +100,8 @@ class OptimizeUtils {
     /**
      * Determines the {@code AdobeError} provided the error code.
      *
-     * @return {@link AdobeError} corresponding to the given error code, or {@link AdobeError#UNEXPECTED_ERROR} otherwise.
+     * @return {@link AdobeError} corresponding to the given error code, or {@link
+     *     AdobeError#UNEXPECTED_ERROR} otherwise.
      */
     @SuppressWarnings("magicnumber")
     static AdobeError convertToAdobeError(final int errorCode) {
@@ -121,40 +126,52 @@ class OptimizeUtils {
     }
 
     /**
-     * Checks whether the given event is a personalization: decisions response returned from the Edge network.
+     * Checks whether the given event is a personalization: decisions response returned from the
+     * Edge network.
      *
      * @param event instance of {@link Event}
-     * @return {@code boolean} containing true if event is a personalization: decisions event, false otherwise.
+     * @return {@code boolean} containing true if event is a personalization: decisions event, false
+     *     otherwise.
      */
     static boolean isPersonalizationDecisionsResponse(final Event event) {
-        return OptimizeConstants.EventType.EDGE.equalsIgnoreCase(event.getType()) &&
-                OptimizeConstants.EventSource.EDGE_PERSONALIZATION_DECISIONS.equalsIgnoreCase(event.getSource());
+        return OptimizeConstants.EventType.EDGE.equalsIgnoreCase(event.getType())
+                && OptimizeConstants.EventSource.EDGE_PERSONALIZATION_DECISIONS.equalsIgnoreCase(
+                        event.getSource());
     }
 
     /**
-     * Checks whether the given event is an Optimize request content event for retrieving cached propositions.
-     * <p>
-     * The get request should have {@code requesttype} set to {@literal getpropositions} in the event's data.
+     * Checks whether the given event is an Optimize request content event for retrieving cached
+     * propositions.
+     *
+     * <p>The get request should have {@code requesttype} set to {@literal getpropositions} in the
+     * event's data.
      *
      * @param event instance of {@link Event}
      * @return true if event is a Personalization Decision Response event, false otherwise
      */
     static boolean isGetEvent(final Event event) {
-        final String requestType = DataReader.optString(event.getEventData(), OptimizeConstants.EventDataKeys.REQUEST_TYPE, "");
-        return OptimizeConstants.EventType.OPTIMIZE.equalsIgnoreCase(event.getType()) &&
-                OptimizeConstants.EventSource.REQUEST_CONTENT.equalsIgnoreCase(event.getSource()) &&
-                requestType.equalsIgnoreCase(OptimizeConstants.EventDataValues.REQUEST_TYPE_GET);
+        final String requestType =
+                DataReader.optString(
+                        event.getEventData(), OptimizeConstants.EventDataKeys.REQUEST_TYPE, "");
+        return OptimizeConstants.EventType.OPTIMIZE.equalsIgnoreCase(event.getType())
+                && OptimizeConstants.EventSource.REQUEST_CONTENT.equalsIgnoreCase(event.getSource())
+                && requestType.equalsIgnoreCase(OptimizeConstants.EventDataValues.REQUEST_TYPE_GET);
     }
 
     /**
      * Returns event's parentID or {@code requestEventId} present in the event's data.
+     *
      * @param event instance of {@link Event}
      * @return {@link String} containing request event ID.
      */
     static String getRequestEventId(final Event event) {
         String requestEventId = event.getParentID();
         if (OptimizeUtils.isNullOrEmpty(requestEventId)) {
-            requestEventId = DataReader.optString(event.getEventData(), OptimizeConstants.EventDataKeys.REQUEST_EVENT_ID, null);
+            requestEventId =
+                    DataReader.optString(
+                            event.getEventData(),
+                            OptimizeConstants.EventDataKeys.REQUEST_EVENT_ID,
+                            null);
         }
         return requestEventId;
     }
