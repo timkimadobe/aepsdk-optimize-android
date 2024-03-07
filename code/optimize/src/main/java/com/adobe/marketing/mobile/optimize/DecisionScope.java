@@ -96,9 +96,9 @@ public class DecisionScope {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Invalid scope (%s)! Decoded Scope name is null or empty.",
+                    "Invalid scope (%s)! Base64Decoded Scope name is null or empty.",
                     name);
-            return true;
+            return false;
         }
         try {
             final JSONObject jsonObject = new JSONObject(jsonString);
