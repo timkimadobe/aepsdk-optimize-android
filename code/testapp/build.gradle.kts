@@ -13,6 +13,7 @@ import com.adobe.marketing.mobile.gradle.BuildConstants
 
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 
 val mavenCoreVersion: String by project
@@ -29,10 +30,25 @@ android {
         versionName = BuildConstants.Versions.VERSION_NAME
     }
 
+    kotlinOptions {
+        jvmTarget = BuildConstants.Versions.KOTLIN_JVM_TARGET
+        languageVersion = BuildConstants.Versions.KOTLIN_LANGUAGE_VERSION
+        apiVersion = BuildConstants.Versions.KOTLIN_API_VERSION
+    }
+
     buildTypes {
         getByName(BuildConstants.BuildTypes.RELEASE)  {
             isMinifyEnabled = false
         }
+    }
+
+    buildFeatures {
+        viewBinding = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = BuildConstants.Versions.COMPOSE_COMPILER
     }
 }
 
@@ -49,15 +65,15 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.annotation:annotation:1.7.1")
     implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.compose.ui:ui:1.6.2")
-    implementation("androidx.compose.material:material:1.6.2")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.6.2")
+    implementation("androidx.compose.ui:ui:1.6.3")
+    implementation("androidx.compose.material:material:1.6.3")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.3")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
-    implementation("androidx.compose.runtime:runtime-livedata:1.6.2")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("io.coil-kt:coil-compose:1.3.2")
 }
