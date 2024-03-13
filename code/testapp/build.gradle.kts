@@ -38,20 +38,11 @@ android {
 
 dependencies {
     implementation(project(":optimize"))
-    implementation("com.adobe.marketing.mobile:core:$mavenCoreVersion-SNAPSHOT")
-    implementation("com.adobe.marketing.mobile:edgeidentity:3.0.0-SNAPSHOT") {
-        exclude(group = "com.adobe.marketing.mobile", module = "core")
-    }
-    implementation("com.adobe.marketing.mobile:edge:3.0.0-SNAPSHOT") {
-        exclude(group = "com.adobe.marketing.mobile", module = "core")
-        exclude(group = "com.adobe.marketing.mobile", module = "edgeidentity")
-    }
-    implementation("com.adobe.marketing.mobile:assurance:3.0.0-SNAPSHOT") {
-        exclude(group = "com.adobe.marketing.mobile", module = "core")
-    }
-    implementation ("com.adobe.marketing.mobile:lifecycle:3.0.0-SNAPSHOT") {
-        exclude(group = "com.adobe.marketing.mobile", module = "core")
-    }
+    implementation("com.adobe.marketing.mobile:core:$mavenCoreVersion")
+    implementation("com.adobe.marketing.mobile:edge:3.0.0-beta.1-SNAPSHOT")
+    implementation("com.adobe.marketing.mobile:edgeidentity:3.0.0-beta.1-SNAPSHOT")
+    implementation("com.adobe.marketing.mobile:assurance:3.0.0-beta.1-SNAPSHOT")
+    implementation ("com.adobe.marketing.mobile:lifecycle:3.0.0-beta.1-SNAPSHOT")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
