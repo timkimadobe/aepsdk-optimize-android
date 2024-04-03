@@ -40,13 +40,27 @@ On [Experience Platform Data Collection](https://experience.adobe.com/#/data-col
 
 ### Install the Experience Platform Mobile SDK
 
-Add the Mobile Core, Edge, Identity for Edge Network and Optimize dependencies in your app's gradle file.
+Installation via [Maven](https://maven.apache.org/) & [Gradle](https://gradle.org/) is the easiest and recommended way to get the Mobile SDK. Add the Mobile Core, Edge, Identity for Edge Network and Optimize dependencies in your app's gradle file.
 
-```java
-implementation 'com.adobe.marketing.mobile:core:2.+'
-implementation 'com.adobe.marketing.mobile:edge:2.+'
-implementation 'com.adobe.marketing.mobile:edgeidentity:2.+'
-implementation 'com.adobe.marketing.mobile:optimize:2.+'
+
+#### Kotlin
+
+```kotlin
+    implementation(platform("com.adobe.marketing.mobile:sdk-bom:3.+"))
+    implementation("com.adobe.marketing.mobile:core")
+    implementation("com.adobe.marketing.mobile:edge")
+    implementation("com.adobe.marketing.mobile:edgeidentity")
+    implementation("com.adobe.marketing.mobile:optimize")    
+```
+
+#### Groovy
+
+```groovy
+    implementation platform('com.adobe.marketing.mobile:sdk-bom:3.+')
+    implementation 'com.adobe.marketing.mobile:core'
+    implementation 'com.adobe.marketing.mobile:edge'
+    implementation 'com.adobe.marketing.mobile:edgeidentity'
+    implementation 'com.adobe.marketing.mobile:optimize'    
 ```
 
 > **Warning**
