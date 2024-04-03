@@ -23,7 +23,7 @@ import com.adobe.marketing.mobile.optimize.Optimize
 class MainApplication : Application() {
 
     companion object {
-        const val LAUNCH_ENVIRONMENT_FILE_ID = "<Your Launch environment Id>"
+        const val LAUNCH_ENVIRONMENT_FILE_ID = ""
     }
 
     override fun onCreate() {

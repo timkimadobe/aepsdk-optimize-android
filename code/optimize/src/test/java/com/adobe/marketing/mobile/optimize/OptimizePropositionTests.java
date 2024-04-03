@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 @SuppressWarnings({"unchecked"})
-public class PropositionTests {
+public class OptimizePropositionTests {
     @Test
     public void testFromEventData_validProposition() throws Exception {
         Map<String, Object> propositionData =
@@ -29,17 +29,18 @@ public class PropositionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
 
-        Assert.assertEquals("de03ac85-802a-4331-a905-a57053164d35", proposition.getId());
+        Assert.assertEquals("de03ac85-802a-4331-a905-a57053164d35", optimizeProposition.getId());
         Assert.assertEquals(
                 "eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
-                proposition.getScope());
-        Assert.assertTrue(proposition.getScopeDetails().isEmpty());
-        Assert.assertEquals(1, proposition.getOffers().size());
+                optimizeProposition.getScope());
+        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
 
-        Offer offer = proposition.getOffers().get(0);
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals("10", offer.getEtag());
         Assert.assertEquals(
@@ -60,14 +61,16 @@ public class PropositionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
 
         Assert.assertEquals(
-                "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9", proposition.getId());
-        Assert.assertEquals("myMbox", proposition.getScope());
+                "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+                optimizeProposition.getId());
+        Assert.assertEquals("myMbox", optimizeProposition.getScope());
 
-        Map<String, Object> scopeDetails = proposition.getScopeDetails();
+        Map<String, Object> scopeDetails = optimizeProposition.getScopeDetails();
         Assert.assertNotNull(scopeDetails);
         Assert.assertEquals(4, scopeDetails.size());
         Assert.assertEquals("TGT", scopeDetails.get("decisionProvider"));
@@ -89,8 +92,8 @@ public class PropositionTests {
         Assert.assertEquals("0", strategy.get("algorithmID"));
         Assert.assertEquals("0", strategy.get("trafficType"));
 
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("246315", offer.getId());
         Assert.assertNull(offer.getEtag());
         Assert.assertEquals(
@@ -110,8 +113,9 @@ public class PropositionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_INVALID_MISSING_ID.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNull(optimizeProposition);
     }
 
     @Test
@@ -123,8 +127,9 @@ public class PropositionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_INVALID_MISSING_SCOPE.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNull(optimizeProposition);
     }
 
     @Test
@@ -136,11 +141,13 @@ public class PropositionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
 
         // test
-        final Map<String, Object> propositionReferenceXdm = proposition.generateReferenceXdm();
+        final Map<String, Object> propositionReferenceXdm =
+                optimizeProposition.generateReferenceXdm();
 
         // verify
         Assert.assertNotNull(propositionReferenceXdm);
@@ -163,11 +170,13 @@ public class PropositionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
 
         // test
-        final Map<String, Object> propositionReferenceXdm = proposition.generateReferenceXdm();
+        final Map<String, Object> propositionReferenceXdm =
+                optimizeProposition.generateReferenceXdm();
 
         // verify
         Assert.assertNotNull(propositionReferenceXdm);
