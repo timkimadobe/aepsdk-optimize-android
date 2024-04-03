@@ -35,7 +35,7 @@ import java.util.Map;
 class OptimizeExtension extends Extension {
 
     private static final String SELF_TAG = "OptimizeExtension";
-    private Map<DecisionScope, Proposition> cachedPropositions;
+    private Map<DecisionScope, OptimizeProposition> cachedPropositions;
 
     // Events dispatcher used to maintain the processing order of update and get propositions
     // events.
@@ -65,7 +65,7 @@ class OptimizeExtension extends Extension {
 
     // a dictionary to accumulate propositions returned in various personalization:decisions events
     // for the same Edge personalization request.
-    private Map<DecisionScope, Proposition> propositionsInProgress = new HashMap<>();
+    private Map<DecisionScope, OptimizeProposition> propositionsInProgress = new HashMap<>();
 
     // List containing the schema strings for the proposition items supported by the SDK, sent in
     // the personalization query request.
@@ -531,12 +531,14 @@ class OptimizeExtension extends Extension {
                 return;
             }
 
-            final Map<DecisionScope, Proposition> propositionsMap = new HashMap<>();
+            final Map<DecisionScope, OptimizeProposition> propositionsMap = new HashMap<>();
             for (final Map<String, Object> propositionData : payload) {
-                final Proposition proposition = Proposition.fromEventData(propositionData);
-                if (proposition != null && !OptimizeUtils.isNullOrEmpty(proposition.getOffers())) {
-                    final DecisionScope scope = new DecisionScope(proposition.getScope());
-                    propositionsMap.put(scope, proposition);
+                final OptimizeProposition optimizeProposition =
+                        OptimizeProposition.fromEventData(propositionData);
+                if (optimizeProposition != null
+                        && !OptimizeUtils.isNullOrEmpty(optimizeProposition.getOffers())) {
+                    final DecisionScope scope = new DecisionScope(optimizeProposition.getScope());
+                    propositionsMap.put(scope, optimizeProposition);
                 }
             }
 
@@ -554,8 +556,8 @@ class OptimizeExtension extends Extension {
             propositionsInProgress.putAll(propositionsMap);
 
             final List<Map<String, Object>> propositionsList = new ArrayList<>();
-            for (final Proposition proposition : propositionsMap.values()) {
-                propositionsList.add(proposition.toEventData());
+            for (final OptimizeProposition optimizeProposition : propositionsMap.values()) {
+                propositionsList.add(optimizeProposition.toEventData());
             }
             final Map<String, Object> notificationData = new HashMap<>();
             notificationData.put(OptimizeConstants.EventDataKeys.PROPOSITIONS, propositionsList);
@@ -653,8 +655,8 @@ class OptimizeExtension extends Extension {
             final List<Map<String, Object>> propositionsList = new ArrayList<>();
             for (final DecisionScope scope : validScopes) {
                 if (cachedPropositions.containsKey(scope)) {
-                    final Proposition proposition = cachedPropositions.get(scope);
-                    propositionsList.add(proposition.toEventData());
+                    final OptimizeProposition optimizeProposition = cachedPropositions.get(scope);
+                    propositionsList.add(optimizeProposition.toEventData());
                 }
             }
 
@@ -849,22 +851,23 @@ class OptimizeExtension extends Extension {
     }
 
     @VisibleForTesting
-    Map<DecisionScope, Proposition> getCachedPropositions() {
+    Map<DecisionScope, OptimizeProposition> getCachedPropositions() {
         return cachedPropositions;
     }
 
     @VisibleForTesting
-    void setCachedPropositions(final Map<DecisionScope, Proposition> cachedPropositions) {
+    void setCachedPropositions(final Map<DecisionScope, OptimizeProposition> cachedPropositions) {
         this.cachedPropositions = cachedPropositions;
     }
 
     @VisibleForTesting
-    Map<DecisionScope, Proposition> getPropositionsInProgress() {
+    Map<DecisionScope, OptimizeProposition> getPropositionsInProgress() {
         return propositionsInProgress;
     }
 
     @VisibleForTesting
-    void setPropositionsInProgress(final Map<DecisionScope, Proposition> propositionsInProgress) {
+    void setPropositionsInProgress(
+            final Map<DecisionScope, OptimizeProposition> propositionsInProgress) {
         this.propositionsInProgress = propositionsInProgress;
     }
 

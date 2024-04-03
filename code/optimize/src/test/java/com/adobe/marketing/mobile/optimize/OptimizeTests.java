@@ -36,7 +36,7 @@ import org.mockito.stubbing.Answer;
 @RunWith(MockitoJUnitRunner.Silent.class)
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class OptimizeTests {
-    private Map<DecisionScope, Proposition> responseMap;
+    private Map<DecisionScope, OptimizeProposition> responseMap;
     private AdobeError responseError;
 
     @After
@@ -331,14 +331,14 @@ public class OptimizeTests {
 
             Optimize.getPropositions(
                     scopes,
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -382,11 +382,12 @@ public class OptimizeTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
 
             final List<Map<String, Object>> propositionsList = new ArrayList<>();
-            propositionsList.add(proposition.toEventData());
+            propositionsList.add(optimizeProposition.toEventData());
 
             final Map<String, Object> responseEventData = new HashMap<>();
             responseEventData.put("propositions", propositionsList);
@@ -402,11 +403,11 @@ public class OptimizeTests {
             Assert.assertNull(responseError);
             Assert.assertNotNull(responseMap);
             Assert.assertEquals(1, responseMap.size());
-            Proposition actualProposition =
+            OptimizeProposition actualOptimizeProposition =
                     responseMap.get(
                             new DecisionScope(
                                     "eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
-            Assert.assertEquals(proposition, actualProposition);
+            Assert.assertEquals(optimizeProposition, actualOptimizeProposition);
         }
     }
 
@@ -437,14 +438,14 @@ public class OptimizeTests {
 
             Optimize.getPropositions(
                     scopes,
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -507,14 +508,14 @@ public class OptimizeTests {
 
             Optimize.getPropositions(
                     scopes,
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -536,14 +537,14 @@ public class OptimizeTests {
             // test
             Optimize.getPropositions(
                     new ArrayList<DecisionScope>(),
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -565,14 +566,14 @@ public class OptimizeTests {
             // test
             Optimize.getPropositions(
                     null,
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -594,14 +595,15 @@ public class OptimizeTests {
                 Mockito.mockStatic(MobileCore.class)) {
             // test
             Optimize.onPropositionsUpdate(
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(final AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(final Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(
+                                final Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -624,11 +626,12 @@ public class OptimizeTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
 
             final List<Map<String, Object>> propositionsList = new ArrayList<>();
-            propositionsList.add(proposition.toEventData());
+            propositionsList.add(optimizeProposition.toEventData());
 
             final Map<String, Object> eventData = new HashMap<>();
             eventData.put("propositions", propositionsList);
@@ -644,11 +647,11 @@ public class OptimizeTests {
             Assert.assertNull(responseError);
             Assert.assertNotNull(responseMap);
             Assert.assertEquals(1, responseMap.size());
-            Proposition actualProposition =
+            OptimizeProposition actualOptimizeProposition =
                     responseMap.get(
                             new DecisionScope(
                                     "eydhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
-            Assert.assertEquals(proposition, actualProposition);
+            Assert.assertEquals(optimizeProposition, actualOptimizeProposition);
         }
     }
 
@@ -658,14 +661,15 @@ public class OptimizeTests {
                 Mockito.mockStatic(MobileCore.class)) {
             // test
             Optimize.onPropositionsUpdate(
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(final AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(final Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(
+                                final Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });
@@ -706,14 +710,15 @@ public class OptimizeTests {
                 Mockito.mockStatic(MobileCore.class)) {
             // test
             Optimize.onPropositionsUpdate(
-                    new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                    new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
                         public void fail(final AdobeError adobeError) {
                             responseError = adobeError;
                         }
 
                         @Override
-                        public void call(final Map<DecisionScope, Proposition> propositionsMap) {
+                        public void call(
+                                final Map<DecisionScope, OptimizeProposition> propositionsMap) {
                             responseMap = propositionsMap;
                         }
                     });

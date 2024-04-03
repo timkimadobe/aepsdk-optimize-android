@@ -378,11 +378,12 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
 
-        Assert.assertNotNull(proposition);
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertNotNull(offer);
 
         // test
@@ -429,11 +430,12 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
-        Assert.assertNotNull(proposition.getOffers());
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertNotNull(optimizeProposition.getOffers());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertNotNull(offer);
 
         // test
@@ -491,11 +493,12 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
-        Assert.assertNotNull(proposition.getOffers());
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertNotNull(optimizeProposition.getOffers());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertNotNull(offer);
         offer.propositionReference = null;
 
@@ -516,11 +519,12 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
-        Assert.assertNotNull(proposition.getOffers());
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertNotNull(optimizeProposition.getOffers());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertNotNull(offer);
 
         // test
@@ -567,11 +571,12 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
-        Assert.assertNotNull(proposition.getOffers());
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertNotNull(optimizeProposition.getOffers());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertNotNull(offer);
 
         // test
@@ -629,11 +634,12 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                 HashMap.class);
-        final Proposition proposition = Proposition.fromEventData(propositionData);
-        Assert.assertNotNull(proposition);
-        Assert.assertNotNull(proposition.getOffers());
-        Assert.assertEquals(1, proposition.getOffers().size());
-        Offer offer = proposition.getOffers().get(0);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertNotNull(optimizeProposition.getOffers());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertNotNull(offer);
         offer.propositionReference = null;
 
@@ -656,11 +662,12 @@ public class OfferTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
 
-            Assert.assertEquals(1, proposition.getOffers().size());
-            Offer offer = proposition.getOffers().get(0);
+            Assert.assertEquals(1, optimizeProposition.getOffers().size());
+            Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
 
             final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -725,11 +732,12 @@ public class OfferTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
-            Assert.assertNotNull(proposition.getOffers());
-            Assert.assertEquals(1, proposition.getOffers().size());
-            Offer offer = proposition.getOffers().get(0);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
+            Assert.assertNotNull(optimizeProposition.getOffers());
+            Assert.assertEquals(1, optimizeProposition.getOffers().size());
+            Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
 
             final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -803,11 +811,12 @@ public class OfferTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
-            Assert.assertNotNull(proposition.getOffers());
-            Assert.assertEquals(1, proposition.getOffers().size());
-            Offer offer = proposition.getOffers().get(0);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
+            Assert.assertNotNull(optimizeProposition.getOffers());
+            Assert.assertEquals(1, optimizeProposition.getOffers().size());
+            Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
             offer.propositionReference = null;
 
@@ -836,11 +845,12 @@ public class OfferTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
-            Assert.assertNotNull(proposition.getOffers());
-            Assert.assertEquals(1, proposition.getOffers().size());
-            Offer offer = proposition.getOffers().get(0);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
+            Assert.assertNotNull(optimizeProposition.getOffers());
+            Assert.assertEquals(1, optimizeProposition.getOffers().size());
+            Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
 
             final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -905,11 +915,12 @@ public class OfferTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
-            Assert.assertNotNull(proposition.getOffers());
-            Assert.assertEquals(1, proposition.getOffers().size());
-            Offer offer = proposition.getOffers().get(0);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
+            Assert.assertNotNull(optimizeProposition.getOffers());
+            Assert.assertEquals(1, optimizeProposition.getOffers().size());
+            Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
 
             final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
@@ -983,11 +994,12 @@ public class OfferTests {
                                             .getClassLoader()
                                             .getResource("json/PROPOSITION_VALID.json"),
                                     HashMap.class);
-            final Proposition proposition = Proposition.fromEventData(propositionData);
-            Assert.assertNotNull(proposition);
-            Assert.assertNotNull(proposition.getOffers());
-            Assert.assertEquals(1, proposition.getOffers().size());
-            Offer offer = proposition.getOffers().get(0);
+            final OptimizeProposition optimizeProposition =
+                    OptimizeProposition.fromEventData(propositionData);
+            Assert.assertNotNull(optimizeProposition);
+            Assert.assertNotNull(optimizeProposition.getOffers());
+            Assert.assertEquals(1, optimizeProposition.getOffers().size());
+            Offer offer = optimizeProposition.getOffers().get(0);
             Assert.assertNotNull(offer);
             offer.propositionReference = null;
 

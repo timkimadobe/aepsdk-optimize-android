@@ -10,7 +10,6 @@ Refer to the [Getting Started Guide](getting-started.md).
 - [extensionVersion](#extensionVersion)
 - [getPropositions](#getPropositions)
 - [onPropositionsUpdate](#onPropositionsUpdate)
-- [registerExtension](#registerExtension)
 - [resetIdentities](#resetIdentities)
 - [updatePropositions](#updatePropositions)
 
@@ -137,27 +136,6 @@ Optimize.onPropositionsUpdate(new AdobeCallbackWithError<Map<DecisionScope, Prop
         }
     }
 });
-```
-
-## registerExtension
-
-> **Warning**
-> This API is deprecated from version 2.0.0. Please use Mobile Core's [registerExtensions](https://github.com/adobe/aepsdk-core-android/blob/main/Documentation/MobileCore/api-reference.md) API instead.
-
-This API can be invoked to register the Optimize extension with the Mobile Core.
-
-### Java
-
-#### Syntax
-
-```java
-public static void registerExtension()
-```
-
-#### Example
-
-```java
-Optimize.registerExtension();
 ```
 
 ## resetIdentities

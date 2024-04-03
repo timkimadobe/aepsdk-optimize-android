@@ -16,9 +16,8 @@ import androidx.lifecycle.ViewModel
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
 import com.adobe.marketing.mobile.optimize.DecisionScope
-import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.Optimize
-import com.adobe.marketing.mobile.optimize.Proposition
+import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.models.OptimizePair
 
 class MainViewModel: ViewModel() {
@@ -40,12 +39,12 @@ class MainViewModel: ViewModel() {
     var targetParamsMbox = mutableStateListOf(OptimizePair("",""))
     var targetParamsProfile = mutableStateListOf(OptimizePair("",""))
 
-    var propositionStateMap = mutableStateMapOf<String, Proposition>()
+    var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
 
-    private val propositionUpdateCallback = object : AdobeCallbackWithError<Map<DecisionScope, Proposition>> {
-        override fun call(propositions: Map<DecisionScope, Proposition>?) {
+    private val optimizePropositionUpdateCallback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
+        override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
             propositions?.forEach {
-                propositionStateMap[it.key.name] = it.value
+                optimizePropositionStateMap[it.key.name] = it.value
             }
         }
 
@@ -55,7 +54,7 @@ class MainViewModel: ViewModel() {
     }
 
     init {
-        Optimize.onPropositionsUpdate(propositionUpdateCallback)
+        Optimize.onPropositionsUpdate(optimizePropositionUpdateCallback)
     }
 
     //Begin: Calls to Optimize SDK APIs
@@ -71,11 +70,11 @@ class MainViewModel: ViewModel() {
      * @param [decisionScopes] a [List] of [DecisionScope]
      */
     fun getPropositions(decisionScopes: List<DecisionScope>) {
-        propositionStateMap.clear()
-        Optimize.getPropositions(decisionScopes, object: AdobeCallbackWithError<Map<DecisionScope, Proposition>>{
-            override fun call(propositions: Map<DecisionScope, Proposition>?) {
+        optimizePropositionStateMap.clear()
+        Optimize.getPropositions(decisionScopes, object: AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>{
+            override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
                 propositions?.forEach {
-                    propositionStateMap[it.key.name] = it.value
+                    optimizePropositionStateMap[it.key.name] = it.value
                 }
             }
 
@@ -94,7 +93,7 @@ class MainViewModel: ViewModel() {
      * @param data a [Map] of data
      */
     fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
-        propositionStateMap.clear()
+        optimizePropositionStateMap.clear()
         Optimize.updatePropositions(decisionScopes, xdm, data)
     }
 
@@ -102,7 +101,7 @@ class MainViewModel: ViewModel() {
      * Calls the Optimize SDK API to clear the cached Propositions [Optimize.clearCachedPropositions]
      */
     fun clearCachedPropositions() {
-        propositionStateMap.clear()
+        optimizePropositionStateMap.clear()
         Optimize.clearCachedPropositions()
     }
 

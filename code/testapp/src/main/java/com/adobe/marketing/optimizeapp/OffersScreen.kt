@@ -43,7 +43,6 @@ import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
@@ -64,7 +63,7 @@ fun OffersView(viewModel: MainViewModel) {
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        if (viewModel.propositionStateMap.isEmpty()) {
+        if (viewModel.optimizePropositionStateMap.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -90,27 +89,27 @@ fun OffersView(viewModel: MainViewModel) {
                     .fillMaxHeight(fraction = 0.85f),
                 state = listState
             ) {
-                items(items = viewModel.propositionStateMap.keys.toList().sorted(), key = { item -> item }, itemContent = { item ->
+                items(items = viewModel.optimizePropositionStateMap.keys.toList().sorted(), key = { item -> item }, itemContent = { item ->
                     when(item) {
                         viewModel.textDecisionScope?.name -> {
                             OffersSectionText(sectionName = "Text Offers")
-                            TextOffers(offers = viewModel.propositionStateMap[viewModel.textDecisionScope?.name]?.offers, listState = listState)
+                            TextOffers(offers = viewModel.optimizePropositionStateMap[viewModel.textDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.imageDecisionScope?.name -> {
                             OffersSectionText(sectionName = "Image Offers")
-                            ImageOffers(offers = viewModel.propositionStateMap[viewModel.imageDecisionScope?.name]?.offers, listState = listState)
+                            ImageOffers(offers = viewModel.optimizePropositionStateMap[viewModel.imageDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.htmlDecisionScope?.name -> {
                             OffersSectionText(sectionName = "HTML Offers")
-                            HTMLOffers(offers = viewModel.propositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, listState = listState)
+                            HTMLOffers(offers = viewModel.optimizePropositionStateMap[viewModel.htmlDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.jsonDecisionScope?.name -> {
                             OffersSectionText(sectionName = "JSON Offers")
-                            JSONOffers(offers = viewModel.propositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, listState = listState)
+                            JSONOffers(offers = viewModel.optimizePropositionStateMap[viewModel.jsonDecisionScope?.name]?.offers, listState = listState)
                         }
                         viewModel.targetMboxDecisionScope?.name -> {
                             OffersSectionText(sectionName = "Target Offers")
-                            TargetOffersView(offers = viewModel.propositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, listState = listState)
+                            TargetOffersView(offers = viewModel.optimizePropositionStateMap[viewModel.targetMboxDecisionScope?.name]?.offers, listState = listState)
                         }
                     }
                 })

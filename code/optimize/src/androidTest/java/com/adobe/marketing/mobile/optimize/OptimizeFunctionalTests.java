@@ -624,18 +624,19 @@ public class OptimizeFunctionalTests {
         Thread.sleep(1000);
         TestHelper.resetTestExpectations();
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Collections.singletonList(decisionScope),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -652,15 +653,15 @@ public class OptimizeFunctionalTests {
         Assert.assertEquals(1, optimizeResponseEventsList.size());
         Assert.assertNull(optimizeResponseEventsList.get(0).getEventData().get("responseerror"));
         Assert.assertEquals(1, propositionMap.size());
-        Proposition proposition = propositionMap.get(decisionScope);
-        Assert.assertNotNull(proposition);
-        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", proposition.getId());
+        OptimizeProposition optimizeProposition = propositionMap.get(decisionScope);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizeProposition.getId());
         Assert.assertEquals(
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
-                proposition.getScope());
-        Assert.assertEquals(1, proposition.getOffers().size());
+                optimizeProposition.getScope());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
 
-        Offer offer = proposition.getOffers().get(0);
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals("10", offer.getEtag());
         Assert.assertEquals(1, offer.getScore());
@@ -815,18 +816,19 @@ public class OptimizeFunctionalTests {
         Thread.sleep(1000);
         TestHelper.resetTestExpectations();
         final DecisionScope decisionScope = new DecisionScope(decisionScopeString);
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Collections.singletonList(decisionScope),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -843,13 +845,14 @@ public class OptimizeFunctionalTests {
         Assert.assertNull(optimizeResponseEventsList.get(0).getEventData().get("responseerror"));
         Assert.assertEquals(1, propositionMap.size());
 
-        final Proposition proposition = propositionMap.get(decisionScope);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition = propositionMap.get(decisionScope);
+        Assert.assertNotNull(optimizeProposition);
         Assert.assertEquals(
-                "AT:eyJhY3Rpdml0eUlkIjoiMTExMTExIiwiZXhwZXJpZW5jZUlkIjoiMCJ9", proposition.getId());
-        Assert.assertEquals("myMbox1", proposition.getScope());
+                "AT:eyJhY3Rpdml0eUlkIjoiMTExMTExIiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+                optimizeProposition.getId());
+        Assert.assertEquals("myMbox1", optimizeProposition.getScope());
 
-        final Map<String, Object> scopeDetails = proposition.getScopeDetails();
+        final Map<String, Object> scopeDetails = optimizeProposition.getScopeDetails();
         Assert.assertEquals(5, scopeDetails.size());
         Assert.assertEquals("TGT", scopeDetails.get("decisionProvider"));
         final Map<String, Object> activity = (Map<String, Object>) scopeDetails.get("activity");
@@ -892,8 +895,8 @@ public class OptimizeFunctionalTests {
                 eventTokens.get("display"));
         Assert.assertEquals("EZDMbI2wmAyGcUYLr3VpmA==", eventTokens.get("click"));
 
-        Assert.assertEquals(1, proposition.getOffers().size());
-        final Offer offer = proposition.getOffers().get(0);
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        final Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("0", offer.getId());
         Assert.assertEquals(
                 "https://ns.adobe.com/personalization/json-content-item", offer.getSchema());
@@ -1015,18 +1018,19 @@ public class OptimizeFunctionalTests {
         TestHelper.resetTestExpectations();
         DecisionScope decisionScope1 = new DecisionScope(decisionScopeString);
         DecisionScope decisionScope2 = new DecisionScope("myMbox");
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Arrays.asList(decisionScope1, decisionScope2),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -1049,15 +1053,15 @@ public class OptimizeFunctionalTests {
                 propositionMap.containsKey(
                         decisionScope2)); // Decision scope myMbox is not present in cache
 
-        Proposition proposition = propositionMap.get(decisionScope1);
-        Assert.assertNotNull(proposition);
-        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", proposition.getId());
+        OptimizeProposition optimizeProposition = propositionMap.get(decisionScope1);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizeProposition.getId());
         Assert.assertEquals(
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
-                proposition.getScope());
-        Assert.assertEquals(1, proposition.getOffers().size());
+                optimizeProposition.getScope());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
 
-        Offer offer = proposition.getOffers().get(0);
+        Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals(
                 "https://ns.adobe.com/experience/offer-management/content-component-html",
@@ -1151,18 +1155,19 @@ public class OptimizeFunctionalTests {
         TestHelper.resetTestExpectations();
         DecisionScope decisionScope1 = new DecisionScope("myMbox1");
         DecisionScope decisionScope2 = new DecisionScope("myMbox2");
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Arrays.asList(decisionScope1, decisionScope2),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -1202,18 +1207,19 @@ public class OptimizeFunctionalTests {
 
         // Action
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         TestHelper.resetTestExpectations();
         Optimize.getPropositions(
                 Arrays.asList(decisionScope1, decisionScope2),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting Propositions.");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -1250,8 +1256,8 @@ public class OptimizeFunctionalTests {
                                 OfferType.TEXT,
                                 "Text Offer!!")
                         .build();
-        Proposition proposition =
-                new Proposition(
+        OptimizeProposition optimizeProposition =
+                new OptimizeProposition(
                         "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
                         Collections.singletonList(offer),
                         "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
@@ -1340,8 +1346,8 @@ public class OptimizeFunctionalTests {
 
         Offer offer = new Offer.Builder("246315", OfferType.TEXT, "Text Offer!!").build();
         // Set the proposition soft reference to Offer
-        Proposition proposition =
-                new Proposition(
+        OptimizeProposition optimizeProposition =
+                new OptimizeProposition(
                         "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
                         Collections.singletonList(offer),
                         "myMbox",
@@ -1429,8 +1435,8 @@ public class OptimizeFunctionalTests {
                         testDecisionScopes, new TypeReference<Map<String, Object>>() {});
 
         Offer offer = new Offer.Builder("246315", OfferType.TEXT, "Text Offer!!").build();
-        Proposition proposition =
-                new Proposition(
+        OptimizeProposition optimizeProposition =
+                new OptimizeProposition(
                         "AT:eyJhY3Rpdml0eUlkIjoiMTI1NTg5IiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
                         Collections.singletonList(offer),
                         "myMbox",
@@ -1600,18 +1606,19 @@ public class OptimizeFunctionalTests {
         Thread.sleep(1000);
         TestHelper.resetTestExpectations();
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Collections.singletonList(decisionScope),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -1630,14 +1637,15 @@ public class OptimizeFunctionalTests {
         propositionMap.clear();
         Optimize.getPropositions(
                 Collections.singletonList(decisionScope),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch1.countDown();
                     }
@@ -1759,18 +1767,19 @@ public class OptimizeFunctionalTests {
         Thread.sleep(1000);
         TestHelper.resetTestExpectations();
         DecisionScope decisionScope = new DecisionScope(decisionScopeString);
-        final Map<DecisionScope, Proposition> propositionMap = new HashMap<>();
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
         final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Collections.singletonList(decisionScope),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch.countDown();
                     }
@@ -1791,14 +1800,15 @@ public class OptimizeFunctionalTests {
         final ADBCountDownLatch countDownLatch1 = new ADBCountDownLatch(1);
         Optimize.getPropositions(
                 Collections.singletonList(decisionScope),
-                new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
                         Assert.fail("Error in getting cached propositions");
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, Proposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         propositionMap.putAll(decisionScopePropositionMap);
                         countDownLatch1.countDown();
                     }
@@ -1844,9 +1854,10 @@ public class OptimizeFunctionalTests {
         Map<String, Object> propositionData =
                 objectMapper.readValue(
                         validPropositionText, new TypeReference<Map<String, Object>>() {});
-        Proposition proposition = Proposition.fromEventData(propositionData);
-        assert proposition != null;
-        Offer offer = proposition.getOffers().get(0);
+        OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        assert optimizeProposition != null;
+        Offer offer = optimizeProposition.getOffers().get(0);
 
         // Action
         final Map<String, Object> propositionInteractionXdm = offer.generateDisplayInteractionXdm();
@@ -1925,9 +1936,10 @@ public class OptimizeFunctionalTests {
         Map<String, Object> propositionData =
                 objectMapper.readValue(
                         validProposition, new TypeReference<Map<String, Object>>() {});
-        Proposition proposition = Proposition.fromEventData(propositionData);
-        assert proposition != null;
-        Offer offer = proposition.getOffers().get(0);
+        OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
+        assert optimizeProposition != null;
+        Offer offer = optimizeProposition.getOffers().get(0);
 
         // Action
         Map<String, Object> propositionTapInteractionXdm = offer.generateTapInteractionXdm();
@@ -1999,11 +2011,13 @@ public class OptimizeFunctionalTests {
                 objectMapper.readValue(
                         validProposition, new TypeReference<Map<String, Object>>() {});
 
-        final Proposition proposition = Proposition.fromEventData(propositionData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionData);
 
         // Action
-        assert proposition != null;
-        final Map<String, Object> propositionReferenceXdm = proposition.generateReferenceXdm();
+        assert optimizeProposition != null;
+        final Map<String, Object> propositionReferenceXdm =
+                optimizeProposition.generateReferenceXdm();
 
         // verify
         Assert.assertNotNull(propositionReferenceXdm);

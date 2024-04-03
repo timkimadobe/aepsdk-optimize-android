@@ -129,7 +129,7 @@ public class Optimize {
      */
     public static void getPropositions(
             @NonNull final List<DecisionScope> decisionScopes,
-            @NonNull final AdobeCallback<Map<DecisionScope, Proposition>> callback) {
+            @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
@@ -213,17 +213,18 @@ public class Optimize {
                                             Object.class,
                                             eventData,
                                             OptimizeConstants.EventDataKeys.PROPOSITIONS);
-                            final Map<DecisionScope, Proposition> propositionsMap = new HashMap<>();
+                            final Map<DecisionScope, OptimizeProposition> propositionsMap =
+                                    new HashMap<>();
                             if (propositionsList != null) {
                                 for (final Map<String, Object> propositionData : propositionsList) {
-                                    final Proposition proposition =
-                                            Proposition.fromEventData(propositionData);
-                                    if (proposition != null
+                                    final OptimizeProposition optimizeProposition =
+                                            OptimizeProposition.fromEventData(propositionData);
+                                    if (optimizeProposition != null
                                             && !OptimizeUtils.isNullOrEmpty(
-                                                    proposition.getScope())) {
+                                                    optimizeProposition.getScope())) {
                                         final DecisionScope scope =
-                                                new DecisionScope(proposition.getScope());
-                                        propositionsMap.put(scope, proposition);
+                                                new DecisionScope(optimizeProposition.getScope());
+                                        propositionsMap.put(scope, optimizeProposition);
                                     }
                                 }
                             }
@@ -248,7 +249,7 @@ public class Optimize {
      *     invoked when decision propositions are received from the Edge network.
      */
     public static void onPropositionsUpdate(
-            @NonNull final AdobeCallback<Map<DecisionScope, Proposition>> callback) {
+            @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
         MobileCore.registerEventListener(
                 OptimizeConstants.EventType.OPTIMIZE,
                 OptimizeConstants.EventSource.NOTIFICATION,
@@ -271,17 +272,18 @@ public class Optimize {
                                             eventData,
                                             OptimizeConstants.EventDataKeys.PROPOSITIONS);
 
-                            final Map<DecisionScope, Proposition> propositionsMap = new HashMap<>();
+                            final Map<DecisionScope, OptimizeProposition> propositionsMap =
+                                    new HashMap<>();
                             if (propositionsList != null) {
                                 for (final Map<String, Object> propositionData : propositionsList) {
-                                    final Proposition proposition =
-                                            Proposition.fromEventData(propositionData);
-                                    if (proposition != null
+                                    final OptimizeProposition optimizeProposition =
+                                            OptimizeProposition.fromEventData(propositionData);
+                                    if (optimizeProposition != null
                                             && !OptimizeUtils.isNullOrEmpty(
-                                                    proposition.getScope())) {
+                                                    optimizeProposition.getScope())) {
                                         final DecisionScope scope =
-                                                new DecisionScope(proposition.getScope());
-                                        propositionsMap.put(scope, proposition);
+                                                new DecisionScope(optimizeProposition.getScope());
+                                        propositionsMap.put(scope, optimizeProposition);
                                     }
                                 }
                             }

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class Proposition {
+public class OptimizeProposition {
 
     private static final String SELF_TAG = "Proposition";
 
@@ -38,7 +38,7 @@ public class Proposition {
      * @param scope {@code String} containing encoded scope.
      * @param scopeDetails {@code Map<String, Object>} containing scope details.
      */
-    Proposition(
+    OptimizeProposition(
             final String id,
             final List<Offer> offers,
             final String scope,
@@ -59,7 +59,7 @@ public class Proposition {
     /**
      * Gets the {@code Proposition} identifier.
      *
-     * @return {@link String} containing the {@link Proposition} identifier.
+     * @return {@link String} containing the {@link OptimizeProposition} identifier.
      */
     public String getId() {
         return id;
@@ -68,7 +68,7 @@ public class Proposition {
     /**
      * Gets the {@code Proposition} items.
      *
-     * @return {@code List<Offer>} containing the {@link Proposition} items.
+     * @return {@code List<Offer>} containing the {@link OptimizeProposition} items.
      */
     public List<Offer> getOffers() {
         return offers;
@@ -77,7 +77,7 @@ public class Proposition {
     /**
      * Gets the {@code Proposition} scope.
      *
-     * @return {@link String} containing the encoded {@link Proposition} scope.
+     * @return {@link String} containing the encoded {@link OptimizeProposition} scope.
      */
     public String getScope() {
         return scope;
@@ -86,7 +86,7 @@ public class Proposition {
     /**
      * Gets the {@code Proposition} scope details.
      *
-     * @return {@code Map<String, Object>} containing the {@link Proposition} scope details.
+     * @return {@code Map<String, Object>} containing the {@link OptimizeProposition} scope details.
      */
     public Map<String, Object> getScopeDetails() {
         return scopeDetails;
@@ -117,12 +117,12 @@ public class Proposition {
      * Creates a {@code Proposition} object using information provided in {@code data} map.
      *
      * <p>This method returns null if the provided {@code data} is empty or null or if it does not
-     * contain required info for creating a {@link Proposition} object.
+     * contain required info for creating a {@link OptimizeProposition} object.
      *
      * @param data {@code Map<String, Object>} containing proposition data.
      * @return {@code Proposition} object or null.
      */
-    public static Proposition fromEventData(final Map<String, Object> data) {
+    public static OptimizeProposition fromEventData(final Map<String, Object> data) {
         if (OptimizeUtils.isNullOrEmpty(data)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
@@ -169,7 +169,7 @@ public class Proposition {
                 }
             }
 
-            return new Proposition(id, offers, scope, scopeDetails);
+            return new OptimizeProposition(id, offers, scope, scopeDetails);
 
         } catch (Exception e) {
             Log.warning(
@@ -183,7 +183,7 @@ public class Proposition {
     /**
      * Creates a {@code Map<String, Object>} using this {@code Proposition}'s attributes.
      *
-     * @return {@code Map<String, Object>} containing {@link Proposition} data.
+     * @return {@code Map<String, Object>} containing {@link OptimizeProposition} data.
      */
     Map<String, Object> toEventData() {
         final Map<String, Object> propositionMap = new HashMap<>();
@@ -204,7 +204,7 @@ public class Proposition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Proposition that = (Proposition) o;
+        OptimizeProposition that = (OptimizeProposition) o;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (offers != null ? !offers.equals(that.offers) : that.offers != null) return false;
         if (scope != null ? !scope.equals(that.scope) : that.scope != null) return false;

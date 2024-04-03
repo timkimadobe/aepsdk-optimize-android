@@ -37,7 +37,7 @@ public class Offer {
     private String content;
     private Map<String, String> characteristics;
 
-    SoftReference<Proposition> propositionReference;
+    SoftReference<OptimizeProposition> propositionReference;
 
     /**
      * Private constructor.
@@ -269,9 +269,9 @@ public class Offer {
     /**
      * Gets the containing {@code Proposition} for this {@code Offer}.
      *
-     * @return {@link Proposition} instance.
+     * @return {@link OptimizeProposition} instance.
      */
-    public Proposition getProposition() {
+    public OptimizeProposition getProposition() {
         return propositionReference.get();
     }
 
@@ -347,15 +347,17 @@ public class Offer {
             return null;
         }
 
-        Proposition proposition = propositionReference.get();
+        OptimizeProposition optimizeProposition = propositionReference.get();
         final Map<String, Object> propositionsData = new HashMap<>();
         propositionsData.put(
-                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID, proposition.getId());
+                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ID,
+                optimizeProposition.getId());
         propositionsData.put(
-                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE, proposition.getScope());
+                OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPE,
+                optimizeProposition.getScope());
         propositionsData.put(
                 OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_SCOPEDETAILS,
-                proposition.getScopeDetails());
+                optimizeProposition.getScopeDetails());
 
         final Map<String, Object> propositionItem = new HashMap<>();
         propositionItem.put(OptimizeConstants.JsonKeys.DECISIONING_PROPOSITIONS_ITEMS_ID, id);

@@ -877,17 +877,18 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> propositionsData = propositionsList.get(0);
         Assert.assertNotNull(propositionsData);
-        final Proposition proposition = Proposition.fromEventData(propositionsData);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
 
-        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", proposition.getId());
+        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizeProposition.getId());
         Assert.assertEquals(
                 "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
-                proposition.getScope());
-        Assert.assertTrue(proposition.getScopeDetails().isEmpty());
-        Assert.assertEquals(1, proposition.getOffers().size());
+                optimizeProposition.getScope());
+        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
 
-        final Offer offer = proposition.getOffers().get(0);
+        final Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
         Assert.assertEquals("10", offer.getEtag());
         Assert.assertEquals(
@@ -950,15 +951,17 @@ public class OptimizeExtensionTests {
 
         final Map<String, Object> propositionsData = propositionsList.get(0);
         Assert.assertNotNull(propositionsData);
-        final Proposition proposition = Proposition.fromEventData(propositionsData);
-        Assert.assertNotNull(proposition);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
 
         Assert.assertEquals(
-                "AT:eyJhY3Rpdml0eUlkIjoiMTExMTExIiwiZXhwZXJpZW5jZUlkIjoiMCJ9", proposition.getId());
-        Assert.assertEquals("myMbox", proposition.getScope());
-        Assert.assertNotNull(proposition.getScopeDetails());
+                "AT:eyJhY3Rpdml0eUlkIjoiMTExMTExIiwiZXhwZXJpZW5jZUlkIjoiMCJ9",
+                optimizeProposition.getId());
+        Assert.assertEquals("myMbox", optimizeProposition.getScope());
+        Assert.assertNotNull(optimizeProposition.getScopeDetails());
 
-        final Map<String, Object> scopeDetails = proposition.getScopeDetails();
+        final Map<String, Object> scopeDetails = optimizeProposition.getScopeDetails();
         Assert.assertNotNull(scopeDetails);
         Assert.assertEquals(5, scopeDetails.size());
         Assert.assertEquals("TGT", scopeDetails.get("decisionProvider"));
@@ -1004,8 +1007,8 @@ public class OptimizeExtensionTests {
                 eventTokens.get("display"));
         Assert.assertEquals("EZDMbI2wmAyGcUYLr3VpmA==", eventTokens.get("click"));
 
-        Assert.assertEquals(1, proposition.getOffers().size());
-        final Offer offer = proposition.getOffers().get(0);
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+        final Offer offer = optimizeProposition.getOffers().get(0);
         Assert.assertEquals("0", offer.getId());
         Assert.assertNull(offer.getEtag());
         Assert.assertEquals(
@@ -1258,7 +1261,7 @@ public class OptimizeExtensionTests {
                                     ArgumentMatchers.anyString(),
                                     ArgumentMatchers.any()));
 
-            final Map<DecisionScope, Proposition> cachedPropositions =
+            final Map<DecisionScope, OptimizeProposition> cachedPropositions =
                     extension.getCachedPropositions();
             Assert.assertNotNull(cachedPropositions);
             Assert.assertTrue(cachedPropositions.isEmpty());
@@ -1941,10 +1944,12 @@ public class OptimizeExtensionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
-        Assert.assertNotNull(testProposition);
-        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
-        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        final OptimizeProposition testOptimizeProposition =
+                OptimizeProposition.fromEventData(testPropositionData);
+        Assert.assertNotNull(testOptimizeProposition);
+        final Map<DecisionScope, OptimizeProposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(
+                new DecisionScope(testOptimizeProposition.getScope()), testOptimizeProposition);
         extension.setCachedPropositions(cachedPropositions);
 
         final Event testEvent =
@@ -1958,7 +1963,7 @@ public class OptimizeExtensionTests {
         extension.handleClearPropositions(testEvent);
 
         // verify
-        final Map<DecisionScope, Proposition> actualCachedPropositions =
+        final Map<DecisionScope, OptimizeProposition> actualCachedPropositions =
                 extension.getCachedPropositions();
         Assert.assertTrue(actualCachedPropositions.isEmpty());
     }
@@ -1973,10 +1978,12 @@ public class OptimizeExtensionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
-        Assert.assertNotNull(testProposition);
-        final Map<DecisionScope, Proposition> cachedPropositions = new HashMap<>();
-        cachedPropositions.put(new DecisionScope(testProposition.getScope()), testProposition);
+        final OptimizeProposition testOptimizeProposition =
+                OptimizeProposition.fromEventData(testPropositionData);
+        Assert.assertNotNull(testOptimizeProposition);
+        final Map<DecisionScope, OptimizeProposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(
+                new DecisionScope(testOptimizeProposition.getScope()), testOptimizeProposition);
         extension.setCachedPropositions(cachedPropositions);
 
         final Event testEvent =
@@ -1990,7 +1997,7 @@ public class OptimizeExtensionTests {
         extension.handleClearPropositions(testEvent);
 
         // verify
-        final Map<DecisionScope, Proposition> actualCachedPropositions =
+        final Map<DecisionScope, OptimizeProposition> actualCachedPropositions =
                 extension.getCachedPropositions();
         Assert.assertTrue(actualCachedPropositions.isEmpty());
     }
@@ -2014,10 +2021,12 @@ public class OptimizeExtensionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
-        Assert.assertNotNull(testProposition);
-        final Map<DecisionScope, Proposition> propositionsInProgress = new HashMap<>();
-        propositionsInProgress.put(new DecisionScope(testProposition.getScope()), testProposition);
+        final OptimizeProposition testOptimizeProposition =
+                OptimizeProposition.fromEventData(testPropositionData);
+        Assert.assertNotNull(testOptimizeProposition);
+        final Map<DecisionScope, OptimizeProposition> propositionsInProgress = new HashMap<>();
+        propositionsInProgress.put(
+                new DecisionScope(testOptimizeProposition.getScope()), testOptimizeProposition);
         extension.setPropositionsInProgress(propositionsInProgress);
 
         final Event testEvent =
@@ -2055,10 +2064,12 @@ public class OptimizeExtensionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
-        Assert.assertNotNull(testProposition);
-        final Map<DecisionScope, Proposition> propositionsInProgress = new HashMap<>();
-        propositionsInProgress.put(new DecisionScope(testProposition.getScope()), testProposition);
+        final OptimizeProposition testOptimizeProposition =
+                OptimizeProposition.fromEventData(testPropositionData);
+        Assert.assertNotNull(testOptimizeProposition);
+        final Map<DecisionScope, OptimizeProposition> propositionsInProgress = new HashMap<>();
+        propositionsInProgress.put(
+                new DecisionScope(testOptimizeProposition.getScope()), testOptimizeProposition);
         extension.setPropositionsInProgress(propositionsInProgress);
 
         final Event testEvent =
@@ -2105,10 +2116,12 @@ public class OptimizeExtensionTests {
                                         .getClassLoader()
                                         .getResource("json/PROPOSITION_VALID.json"),
                                 HashMap.class);
-        final Proposition testProposition = Proposition.fromEventData(testPropositionData);
-        Assert.assertNotNull(testProposition);
-        final Map<DecisionScope, Proposition> propositionsInProgress = new HashMap<>();
-        propositionsInProgress.put(new DecisionScope(testProposition.getScope()), testProposition);
+        final OptimizeProposition testOptimizeProposition =
+                OptimizeProposition.fromEventData(testPropositionData);
+        Assert.assertNotNull(testOptimizeProposition);
+        final Map<DecisionScope, OptimizeProposition> propositionsInProgress = new HashMap<>();
+        propositionsInProgress.put(
+                new DecisionScope(testOptimizeProposition.getScope()), testOptimizeProposition);
         extension.setPropositionsInProgress(propositionsInProgress);
 
         final Event testEvent =
