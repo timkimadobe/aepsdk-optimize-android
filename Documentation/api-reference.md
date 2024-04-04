@@ -10,14 +10,13 @@ Refer to the [Getting Started Guide](getting-started.md).
 - [extensionVersion](#extensionVersion)
 - [getPropositions](#getPropositions)
 - [onPropositionsUpdate](#onPropositionsUpdate)
-- [registerExtension](#registerExtension)
 - [resetIdentities](#resetIdentities)
 - [updatePropositions](#updatePropositions)
 
 ## Public classes
 
 - [DecisionScope](#DecisionScope)
-- [Proposition](#Proposition)
+- [OptimizeProposition](#OptimizeProposition)
 - [Offer](#Offer)
 - [OfferType](#OfferType)
 
@@ -68,11 +67,11 @@ This API retrieves the previously fetched propositions, for the provided decisio
 #### Syntax
 
 ```java
-public static void getPropositions(final List<DecisionScope> decisionScopes, final AdobeCallback<Map<DecisionScope, Proposition>> callback)
+public static void getPropositions(final List<DecisionScope> decisionScopes, final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback)
 ```
 
 * _decisionScopes_ is a list of decision scopes for which propositions are requested.
-* _callback_ `call` method is invoked with propositions map of type `Map<DecisionScope, Proposition>`. If the callback is an instance of [AdobeCallbackWithError](https://developer.adobe.com/client-sdks/documentation/mobile-core/api-reference/#adobecallbackwitherror), and if the operation times out or an error occurs in retrieving propositions, the `fail` method is invoked with the appropriate [AdobeError](https://developer.adobe.com/client-sdks/documentation/mobile-core/api-reference/#adobeerror).
+* _callback_ `call` method is invoked with propositions map of type `Map<DecisionScope, OptimizeProposition>`. If the callback is an instance of [AdobeCallbackWithError](https://developer.adobe.com/client-sdks/documentation/mobile-core/api-reference/#adobecallbackwitherror), and if the operation times out or an error occurs in retrieving propositions, the `fail` method is invoked with the appropriate [AdobeError](https://developer.adobe.com/client-sdks/documentation/mobile-core/api-reference/#adobeerror).
 
 #### Example
 
@@ -84,22 +83,22 @@ final List<DecisionScope> decisionScopes = new ArrayList<>();
 decisionScopes.add(decisionScope1);
 decisionScopes.add(decisionScope2);
 
-Optimize.getPropositions(scopes, new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+Optimize.getPropositions(scopes, new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
     @Override
     public void fail(final AdobeError adobeError) {
         // handle error
     }
 
     @Override
-    public void call(Map<DecisionScope, Proposition> propositionsMap) {
+    public void call(Map<DecisionScope, OptimizeProposition> propositionsMap) {
         if (propositionsMap != null && !propositionsMap.isEmpty()) {
             // get the propositions for the given decision scopes
             if (propositionsMap.contains(decisionScope1)) {
-                final Proposition proposition1 = propsMap.get(decisionScope1)
+                final OptimizeProposition proposition1 = propsMap.get(decisionScope1)
                 // read proposition1 offers
             }
             if (propositionsMap.contains(decisionScope2)) {
-                final Proposition proposition2 = propsMap.get(decisionScope2)
+                final OptimizeProposition proposition2 = propsMap.get(decisionScope2)
                 // read proposition2 offers
             }
         }
@@ -116,48 +115,27 @@ This API registers a permanent callback which is invoked whenever the Edge exten
 #### Syntax
 
 ```java
-public static void onPropositionsUpdate(final AdobeCallback<Map<DecisionScope, Proposition>> callback)
+public static void onPropositionsUpdate(final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback)
 ```
 
-* _callback_ `call` method is invoked with propositions map of type `Map<DecisionScope, Proposition>`. If the callback is an instance of `AdobeCallbackWithError`, and if the operation times out or an error occurs in retrieving propositions, the `fail` method is invoked with the appropriate `AdobeError`.
+* _callback_ `call` method is invoked with propositions map of type `Map<DecisionScope, OptimizeProposition>`. If the callback is an instance of `AdobeCallbackWithError`, and if the operation times out or an error occurs in retrieving propositions, the `fail` method is invoked with the appropriate `AdobeError`.
 
 #### Example
 
 ```java
-Optimize.onPropositionsUpdate(new AdobeCallbackWithError<Map<DecisionScope, Proposition>>() {
+Optimize.onPropositionsUpdate(new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
     @Override
     public void fail(final AdobeError adobeError) {
         // handle error
     }
 
     @Override
-    public void call(final Map<DecisionScope, Proposition> propositionsMap) {
+    public void call(final Map<DecisionScope, OptimizeProposition> propositionsMap) {
         if (propositionsMap != null && !propositionsMap.isEmpty()) {
             // handle propositions
         }
     }
 });
-```
-
-## registerExtension
-
-> **Warning**
-> This API is deprecated from version 2.0.0. Please use Mobile Core's [registerExtensions](https://github.com/adobe/aepsdk-core-android/blob/main/Documentation/MobileCore/api-reference.md) API instead.
-
-This API can be invoked to register the Optimize extension with the Mobile Core.
-
-### Java
-
-#### Syntax
-
-```java
-public static void registerExtension()
-```
-
-#### Example
-
-```java
-Optimize.registerExtension();
 ```
 
 ## resetIdentities
@@ -255,55 +233,55 @@ public class DecisionScope {
 }
 ```
 
-### Proposition
+### OptimizeProposition
 
 This class represents the decision propositions received from the decisioning services, upon a personalization query request to the Experience Edge network.
 
 #### Java
 
 ```java
-public class Proposition {
+public class OptimizeProposition {
 
     /**
-     * Constructor creates a {@code Proposition} using the provided propostion {@code id}, {@code offers}, {@code scope} and {@code scopeDetails}.
+     * Constructor creates a {@code OptimizeProposition} using the provided propostion {@code id}, {@code offers}, {@code scope} and {@code scopeDetails}.
      *
      * @param id {@link String} containing proposition identifier.
      * @param offers {@code List<Offer>} containing proposition items.
      * @param scope {@code String} containing encoded scope.
      * @param scopeDetails {@code Map<String, Object>} containing scope details.
      */
-    Proposition(final String id, final List<Offer> offers, final String scope, final Map<String, Object> scopeDetails) {...}
+    OptimizeProposition(final String id, final List<Offer> offers, final String scope, final Map<String, Object> scopeDetails) {...}
 
     /**
-     * Gets the {@code Proposition} identifier.
+     * Gets the {@code OptimizeProposition} identifier.
      *
-     * @return {@link String} containing the {@link Proposition} identifier.
+     * @return {@link String} containing the {@link OptimizeProposition} identifier.
      */
     public String getId() {...}
 
     /**
-     * Gets the {@code Proposition} items.
+     * Gets the {@code OptimizeProposition} items.
      *
-     * @return {@code List<Offer>} containing the {@link Proposition} items.
+     * @return {@code List<Offer>} containing the {@link OptimizeProposition} items.
      */
     public List<Offer> getOffers() {...}
 
     /**
-     * Gets the {@code Proposition} scope.
+     * Gets the {@code OptimizeProposition} scope.
      *
-     * @return {@link String} containing the encoded {@link Proposition} scope.
+     * @return {@link String} containing the encoded {@link OptimizeProposition} scope.
      */
     public String getScope() {...}
 
     /**
-     * Gets the {@code Proposition} scope details.
+     * Gets the {@code OptimizeProposition} scope details.
      *
-     * @return {@code Map<String, Object>} containing the {@link Proposition} scope details.
+     * @return {@code Map<String, Object>} containing the {@link OptimizeProposition} scope details.
      */
     public Map<String, Object> getScopeDetails() {...}
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition Reference} field group from this {@code Proposition}.
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition Reference} field group from this {@code OptimizeProposition}.
      *
      * The returned XDM data does not contain {@code eventType} for the Experience Event.
      *
@@ -465,26 +443,26 @@ public class Offer {
     public Map<String, String> getCharacteristics() {...}
 
     /**
-     * Gets the containing {@code Proposition} for this {@code Offer}.
+     * Gets the containing {@code OptimizeProposition} for this {@code Offer}.
      *
-     * @return {@link Proposition} instance.
+     * @return {@link OptimizeProposition} instance.
      */
-    public Proposition getProposition() {...}
+    public OptimizeProposition getProposition() {...}
 
     /**
      * Dispatches an event for the Edge network extension to send an Experience Event to the Edge network with the display interaction data for the
-     * given {@code Proposition} offer.
+     * given {@code OptimizeProposition} offer.
      */
     public void displayed() {...}
 
     /**
      * Dispatches an event for the Edge network extension to send an Experience Event to the Edge network with the tap interaction data for the
-     * given {@code Proposition} offer.
+     * given {@code OptimizeProposition} offer.
      */
     public void tapped() {...}
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition Interactions} field group from this {@code Proposition} item.
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition Interactions} field group from this {@code OptimizeProposition} item.
      *
      * The returned XDM data does contain the {@code eventType} for the Experience Event with value {@code decisioning.propositionDisplay}.
      *
@@ -496,7 +474,7 @@ public class Offer {
     public Map<String, Object> generateDisplayInteractionXdm() {...}
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition Interactions} field group from this {@code Proposition} offer.
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition Interactions} field group from this {@code OptimizeProposition} offer.
      *
      * The returned XDM data contains the {@code eventType} for the Experience Event with value {@code decisioning.propositionInteract}.
      *
