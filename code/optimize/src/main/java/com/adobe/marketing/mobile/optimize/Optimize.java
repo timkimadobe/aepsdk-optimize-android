@@ -124,7 +124,7 @@ public class Optimize {
      *
      * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
      *     be requested.
-     * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, Proposition>>} which will be
+     * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>} which will be
      *     invoked when decision propositions are retrieved from the local cache.
      */
     public static void getPropositions(
@@ -245,7 +245,7 @@ public class Optimize {
      * Optimize#updatePropositions(List, Map, Map)} API, Edge extension {@code
      * sendEvent(ExperienceEvent, EdgeCallback)} API or launch consequence rules.
      *
-     * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, Proposition>>} which will be
+     * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>} which will be
      *     invoked when decision propositions are received from the Edge network.
      */
     public static void onPropositionsUpdate(

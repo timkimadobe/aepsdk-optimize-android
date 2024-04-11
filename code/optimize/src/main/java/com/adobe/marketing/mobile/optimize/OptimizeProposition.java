@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public class OptimizeProposition {
 
-    private static final String SELF_TAG = "Proposition";
+    private static final String SELF_TAG = "OptimizeProposition";
 
     private final String id;
     private final List<Offer> offers;
@@ -30,7 +30,7 @@ public class OptimizeProposition {
     private final Map<String, Object> scopeDetails;
 
     /**
-     * Constructor creates a {@code Proposition} using the provided proposition {@code id}, {@code
+     * Constructor creates a {@code OptimizeProposition} using the provided proposition {@code id}, {@code
      * offers}, {@code scope} and {@code scopeDetails}.
      *
      * @param id {@link String} containing proposition identifier.
@@ -48,7 +48,7 @@ public class OptimizeProposition {
         this.scopeDetails = scopeDetails != null ? scopeDetails : new HashMap<>();
 
         this.offers = offers != null ? offers : new ArrayList<>();
-        // Setting a soft reference to Proposition in each Offer
+        // Setting a soft reference to OptimizeProposition in each Offer
         for (final Offer o : this.offers) {
             if (o.propositionReference == null) {
                 o.propositionReference = new SoftReference<>(this);
@@ -57,7 +57,7 @@ public class OptimizeProposition {
     }
 
     /**
-     * Gets the {@code Proposition} identifier.
+     * Gets the {@code OptimizeProposition} identifier.
      *
      * @return {@link String} containing the {@link OptimizeProposition} identifier.
      */
@@ -66,7 +66,7 @@ public class OptimizeProposition {
     }
 
     /**
-     * Gets the {@code Proposition} items.
+     * Gets the {@code OptimizeProposition} items.
      *
      * @return {@code List<Offer>} containing the {@link OptimizeProposition} items.
      */
@@ -75,7 +75,7 @@ public class OptimizeProposition {
     }
 
     /**
-     * Gets the {@code Proposition} scope.
+     * Gets the {@code OptimizeProposition} scope.
      *
      * @return {@link String} containing the encoded {@link OptimizeProposition} scope.
      */
@@ -84,7 +84,7 @@ public class OptimizeProposition {
     }
 
     /**
-     * Gets the {@code Proposition} scope details.
+     * Gets the {@code OptimizeProposition} scope details.
      *
      * @return {@code Map<String, Object>} containing the {@link OptimizeProposition} scope details.
      */
@@ -93,8 +93,8 @@ public class OptimizeProposition {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition
-     * Reference} field group from this {@code Proposition}.
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
+     * Reference} field group from this {@code OptimizeProposition}.
      *
      * <p>The returned XDM data does not contain {@code eventType} for the Experience Event.
      *
@@ -114,20 +114,20 @@ public class OptimizeProposition {
     }
 
     /**
-     * Creates a {@code Proposition} object using information provided in {@code data} map.
+     * Creates a {@code OptimizeProposition} object using information provided in {@code data} map.
      *
      * <p>This method returns null if the provided {@code data} is empty or null or if it does not
      * contain required info for creating a {@link OptimizeProposition} object.
      *
      * @param data {@code Map<String, Object>} containing proposition data.
-     * @return {@code Proposition} object or null.
+     * @return {@code OptimizeProposition} object or null.
      */
     public static OptimizeProposition fromEventData(final Map<String, Object> data) {
         if (OptimizeUtils.isNullOrEmpty(data)) {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot create Proposition object, provided data Map is empty or null.");
+                    "Cannot create OptimizeProposition object, provided data Map is empty or null.");
             return null;
         }
 
@@ -137,7 +137,7 @@ public class OptimizeProposition {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "Cannot create Proposition object, provided data does not contain"
+                        "Cannot create OptimizeProposition object, provided data does not contain"
                                 + " proposition identifier.");
                 return null;
             }
@@ -147,7 +147,7 @@ public class OptimizeProposition {
                 Log.debug(
                         OptimizeConstants.LOG_TAG,
                         SELF_TAG,
-                        "Cannot create Proposition object, provided data does not contain"
+                        "Cannot create OptimizeProposition object, provided data does not contain"
                                 + " proposition scope.");
                 return null;
             }
@@ -175,13 +175,13 @@ public class OptimizeProposition {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot create Proposition object, provided data contains invalid fields.");
+                    "Cannot create OptimizeProposition object, provided data contains invalid fields.");
             return null;
         }
     }
 
     /**
-     * Creates a {@code Map<String, Object>} using this {@code Proposition}'s attributes.
+     * Creates a {@code Map<String, Object>} using this {@code OptimizeProposition}'s attributes.
      *
      * @return {@code Map<String, Object>} containing {@link OptimizeProposition} data.
      */

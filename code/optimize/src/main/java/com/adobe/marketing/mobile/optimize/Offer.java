@@ -267,7 +267,7 @@ public class Offer {
     }
 
     /**
-     * Gets the containing {@code Proposition} for this {@code Offer}.
+     * Gets the containing {@code OptimizeProposition} for this {@code Offer}.
      *
      * @return {@link OptimizeProposition} instance.
      */
@@ -277,7 +277,7 @@ public class Offer {
 
     /**
      * Dispatches an event for the Edge network extension to send an Experience Event to the Edge
-     * network with the display interaction data for the given {@code Proposition} offer.
+     * network with the display interaction data for the given {@code OptimizeProposition} offer.
      *
      * @see Offer#trackWithData(Map)
      */
@@ -287,7 +287,7 @@ public class Offer {
 
     /**
      * Dispatches an event for the Edge network extension to send an Experience Event to the Edge
-     * network with the tap interaction data for the given {@code Proposition} offer.
+     * network with the tap interaction data for the given {@code OptimizeProposition} offer.
      *
      * @see Offer#trackWithData(Map)
      */
@@ -296,8 +296,8 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition
-     * Interactions} field group from this {@code Proposition} item.
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
+     * Interactions} field group from this {@code OptimizeProposition} item.
      *
      * <p>The returned XDM data does contain the {@code eventType} for the Experience Event with
      * value {@code decisioning.propositionDisplay}.
@@ -314,8 +314,8 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition
-     * Interactions} field group from this {@code Proposition} offer.
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
+     * Interactions} field group from this {@code OptimizeProposition} offer.
      *
      * <p>The returned XDM data contains the {@code eventType} for the Experience Event with value
      * {@code decisioning.propositionInteract}.
@@ -332,8 +332,8 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - Proposition
-     * Interactions} field group from this {@code Proposition} offer and given {@code
+     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
+     * Interactions} field group from this {@code OptimizeProposition} offer and given {@code
      * experienceEventType}.
      *
      * <p>The method returns null if the proposition reference within the offer is released and no

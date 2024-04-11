@@ -49,7 +49,7 @@ class MainViewModel: ViewModel() {
         }
 
         override fun fail(error: AdobeError?) {
-            print("Error in updating Proposition:: ${error?.errorName ?: "Undefined"}.")
+            print("Error in updating OptimizeProposition:: ${error?.errorName ?: "Undefined"}.")
         }
     }
 
