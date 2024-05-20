@@ -30,9 +30,9 @@ public class DecisionScopeTests {
     @Test
     public void testConstructor_validName() {
         // test
-        final DecisionScope scope = new DecisionScope("%CmdbuZhF&a!gckh#zfVo43R$4j0Pv");
+        final DecisionScope scope = new DecisionScope("myMbox");
         Assert.assertNotNull(scope);
-        Assert.assertEquals("%CmdbuZhF&a!gckh#zfVo43R$4j0Pv", scope.getName());
+        Assert.assertEquals("myMbox", scope.getName());
     }
 
     @Test
