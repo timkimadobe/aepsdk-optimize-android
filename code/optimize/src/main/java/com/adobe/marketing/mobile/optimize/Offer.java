@@ -296,8 +296,8 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
-     * Interactions} field group from this {@code OptimizeProposition} item.
+     * Generates a map containing XDM formatted data for {@code Experience Event -
+     * OptimizeProposition Interactions} field group from this {@code OptimizeProposition} item.
      *
      * <p>The returned XDM data does contain the {@code eventType} for the Experience Event with
      * value {@code decisioning.propositionDisplay}.
@@ -314,8 +314,8 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
-     * Interactions} field group from this {@code OptimizeProposition} offer.
+     * Generates a map containing XDM formatted data for {@code Experience Event -
+     * OptimizeProposition Interactions} field group from this {@code OptimizeProposition} offer.
      *
      * <p>The returned XDM data contains the {@code eventType} for the Experience Event with value
      * {@code decisioning.propositionInteract}.
@@ -332,9 +332,9 @@ public class Offer {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
-     * Interactions} field group from this {@code OptimizeProposition} offer and given {@code
-     * experienceEventType}.
+     * Generates a map containing XDM formatted data for {@code Experience Event -
+     * OptimizeProposition Interactions} field group from this {@code OptimizeProposition} offer and
+     * given {@code experienceEventType}.
      *
      * <p>The method returns null if the proposition reference within the offer is released and no
      * longer valid.

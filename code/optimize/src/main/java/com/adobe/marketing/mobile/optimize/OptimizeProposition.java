@@ -30,8 +30,8 @@ public class OptimizeProposition {
     private final Map<String, Object> scopeDetails;
 
     /**
-     * Constructor creates a {@code OptimizeProposition} using the provided proposition {@code id}, {@code
-     * offers}, {@code scope} and {@code scopeDetails}.
+     * Constructor creates a {@code OptimizeProposition} using the provided proposition {@code id},
+     * {@code offers}, {@code scope} and {@code scopeDetails}.
      *
      * @param id {@link String} containing proposition identifier.
      * @param offers {@code List<Offer>} containing proposition items.
@@ -93,8 +93,8 @@ public class OptimizeProposition {
     }
 
     /**
-     * Generates a map containing XDM formatted data for {@code Experience Event - OptimizeProposition
-     * Reference} field group from this {@code OptimizeProposition}.
+     * Generates a map containing XDM formatted data for {@code Experience Event -
+     * OptimizeProposition Reference} field group from this {@code OptimizeProposition}.
      *
      * <p>The returned XDM data does not contain {@code eventType} for the Experience Event.
      *
@@ -127,7 +127,8 @@ public class OptimizeProposition {
             Log.debug(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot create OptimizeProposition object, provided data Map is empty or null.");
+                    "Cannot create OptimizeProposition object, provided data Map is empty or"
+                            + " null.");
             return null;
         }
 
@@ -175,7 +176,8 @@ public class OptimizeProposition {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Cannot create OptimizeProposition object, provided data contains invalid fields.");
+                    "Cannot create OptimizeProposition object, provided data contains invalid"
+                            + " fields.");
             return null;
         }
     }

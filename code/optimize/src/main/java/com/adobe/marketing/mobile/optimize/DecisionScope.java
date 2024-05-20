@@ -92,33 +92,46 @@ public class DecisionScope {
         }
 
         final String jsonString = OptimizeUtils.base64Decode(name);
+
+        // Since name can be any plain string in case of Target mbox
+        // return true if base64 decoding fails
         if (OptimizeUtils.isNullOrEmpty(jsonString)) {
-            Log.debug(
+            Log.trace(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Invalid scope (%s)! Base64Decoded Scope name is null or empty.",
+                    "Base64Decoded scope name is null or empty.",
                     name);
-            return false;
+            return true;
         }
         try {
+            // If the scope name represents an ODE encoded decision scope
+            // the decoded value will be a JSON string
             final JSONObject jsonObject = new JSONObject(jsonString);
+
+            // A valid ODE decision scope will be in one of the following formats:
+            // 1. JSON object having key "xdm:name" with non null and non empty value
             if (jsonObject.has(OptimizeConstants.XDM_NAME)) {
                 final String scopeName = jsonObject.getString(OptimizeConstants.XDM_NAME);
                 if (OptimizeUtils.isNullOrEmpty(scopeName)) {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Scope name is null or empty.",
+                            "Invalid encoded decision scope (%s)! Scope name is null or empty.",
                             name);
                     return false;
                 }
-            } else if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
+            }
+
+            // 2. JSON object having key "xdm:activityId" with non null and non empty value
+            // and key "xdm:placementId" with non null and non empty value
+            // and key "xdm:itemCount" with value greater than 0
+            else if (jsonObject.has(OptimizeConstants.XDM_ACTIVITY_ID)) {
                 final String activityId = jsonObject.getString(OptimizeConstants.XDM_ACTIVITY_ID);
                 if (OptimizeUtils.isNullOrEmpty(activityId)) {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Activity Id is null or empty.",
+                            "Invalid encoded decision scope (%s)! Activity Id is null or empty.",
                             name);
                     return false;
                 }
@@ -128,7 +141,7 @@ public class DecisionScope {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Placement Id is null or empty.",
+                            "Invalid encoded decision scope (%s)! Placement Id is null or empty.",
                             name);
                     return false;
                 }
@@ -139,18 +152,23 @@ public class DecisionScope {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Item count (%d) is invalid.",
+                            "Invalid encoded decision scope (%s)! Item count (%d) is invalid.",
                             name,
                             itemCount);
                     return false;
                 }
-            } else {
+            }
+
+            // 3. JSON object having key "activityId" with non null and non empty value
+            // and key "placementId" with non null and non empty value
+            // and key "itemCount" with value greater than 0
+            else {
                 final String activityId = jsonObject.getString(OptimizeConstants.ACTIVITY_ID);
                 if (OptimizeUtils.isNullOrEmpty(activityId)) {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Activity Id is null or empty.",
+                            "Invalid encoded decision scope (%s)! Activity Id is null or empty.",
                             name);
                     return false;
                 }
@@ -160,7 +178,7 @@ public class DecisionScope {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Placement Id is null or empty.",
+                            "Invalid encoded decision scope (%s)! Placement Id is null or empty.",
                             name);
                     return false;
                 }
@@ -171,22 +189,32 @@ public class DecisionScope {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "Invalid scope (%s)! Item count (%d) is invalid.",
+                            "Invalid encoded decision scope (%s)! Item count (%d) is invalid.",
                             name,
                             itemCount);
                     return false;
                 }
             }
-        } catch (JSONException e) {
-            Log.warning(
+            // name represents a valid ODE encoded decision scope
+            Log.trace(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "Scope name (%s), when decoded, does not contain a JSON string.",
+                    "Encoded decision scope (%s) is valid.",
                     name);
+            return true;
+        } catch (JSONException e) {
+            // Since name can be any string in case of Target mbox,
+            // return true if the name is decodable but decoded name is not a JSON string
+            // or does not have the required JSON keys
+            Log.trace(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "Scope name (%s), when decoded, does not contain a JSON string"
+                            + "or does have the required JSON keys. Error: %s",
+                    name,
+                    e.getLocalizedMessage());
+            return true;
         }
-
-        Log.trace(OptimizeConstants.LOG_TAG, SELF_TAG, "Decision scope (%s) is valid.", name);
-        return true;
     }
 
     /**
