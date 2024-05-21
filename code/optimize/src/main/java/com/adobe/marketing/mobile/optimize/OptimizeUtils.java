@@ -87,7 +87,7 @@ class OptimizeUtils {
         try {
             output = new String(Base64.decode(str, Base64.DEFAULT));
         } catch (final IllegalArgumentException ex) {
-            Log.debug(
+            Log.trace(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
                     String.format(
