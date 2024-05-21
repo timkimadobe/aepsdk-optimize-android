@@ -169,6 +169,26 @@ public class OptimizeUtilsTest {
     }
 
     @Test
+    public void testBase64decode_mboxString() {
+        try (MockedStatic<Base64> base64MockedStatic = Mockito.mockStatic(Base64.class)) {
+            base64MockedStatic
+                    .when(
+                            () ->
+                                    Base64.decode(
+                                            ArgumentMatchers.anyString(),
+                                            ArgumentMatchers.anyInt()))
+                    .thenAnswer(
+                            (Answer<byte[]>)
+                                    invocation ->
+                                            java.util.Base64.getDecoder()
+                                                    .decode((String) invocation.getArguments()[0]));
+            // test
+            final String input = "myTargetLocationB";
+            Assert.assertNull(OptimizeUtils.base64Decode(input));
+        }
+    }
+
+    @Test
     public void testConvertToAdobeError_knownErrorCode() {
         Assert.assertEquals(AdobeError.UNEXPECTED_ERROR, OptimizeUtils.convertToAdobeError(0));
         Assert.assertEquals(AdobeError.CALLBACK_TIMEOUT, OptimizeUtils.convertToAdobeError(1));
