@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 class OptimizeExtension extends Extension {
 
@@ -61,11 +62,13 @@ class OptimizeExtension extends Extension {
 
     // Map containing the update event IDs (and corresponding requested scopes) for Edge events that
     // haven't yet received an Edge completion response.
-    private Map<String, List<DecisionScope>> updateRequestEventIdsInProgress = new HashMap<>();
+    private Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
+            new ConcurrentHashMap<>();
 
     // a dictionary to accumulate propositions returned in various personalization:decisions events
     // for the same Edge personalization request.
-    private Map<DecisionScope, OptimizeProposition> propositionsInProgress = new HashMap<>();
+    private Map<DecisionScope, OptimizeProposition> propositionsInProgress =
+            new ConcurrentHashMap<>();
 
     // List containing the schema strings for the proposition items supported by the SDK, sent in
     // the personalization query request.
