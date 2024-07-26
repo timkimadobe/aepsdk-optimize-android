@@ -62,12 +62,12 @@ class OptimizeExtension extends Extension {
 
     // Map containing the update event IDs (and corresponding requested scopes) for Edge events that
     // haven't yet received an Edge completion response.
-    private Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
+    private static final Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
             new ConcurrentHashMap<>();
 
     // a dictionary to accumulate propositions returned in various personalization:decisions events
     // for the same Edge personalization request.
-    private Map<DecisionScope, OptimizeProposition> propositionsInProgress =
+    private static final Map<DecisionScope, OptimizeProposition> propositionsInProgress =
             new ConcurrentHashMap<>();
 
     // List containing the schema strings for the proposition items supported by the SDK, sent in
@@ -871,7 +871,8 @@ class OptimizeExtension extends Extension {
     @VisibleForTesting
     void setPropositionsInProgress(
             final Map<DecisionScope, OptimizeProposition> propositionsInProgress) {
-        this.propositionsInProgress = propositionsInProgress;
+        OptimizeExtension.propositionsInProgress.clear();
+        OptimizeExtension.propositionsInProgress.putAll(propositionsInProgress);
     }
 
     @VisibleForTesting
