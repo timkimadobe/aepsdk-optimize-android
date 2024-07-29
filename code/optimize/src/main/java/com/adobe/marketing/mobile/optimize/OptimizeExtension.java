@@ -62,11 +62,15 @@ class OptimizeExtension extends Extension {
 
     // Map containing the update event IDs (and corresponding requested scopes) for Edge events that
     // haven't yet received an Edge completion response.
+    // Updating the map type from Hashmap to ConcurrentHashMap to avoid the race condition to restrict it getting accessed by multiple threads
+    // Also declaring its reference as static and final because we have to make sure there is only one instance of the map for the singleton optimize extension class.
     private static final Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
             new ConcurrentHashMap<>();
 
     // a dictionary to accumulate propositions returned in various personalization:decisions events
     // for the same Edge personalization request.
+    // Updating the map type from Hashmap to ConcurrentHashMap to avoid the race condition to restrict it getting accessed by multiple threads.
+    // Also declaring its reference as static and final because we have to make sure there is only one instance of the map for the singleton optimize extension class.
     private static final Map<DecisionScope, OptimizeProposition> propositionsInProgress =
             new ConcurrentHashMap<>();
 
