@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -2151,5 +2152,16 @@ public class OptimizeExtensionTests {
                                 ArgumentMatchers.eq(false),
                                 ArgumentMatchers.eq(SharedStateResolution.ANY)))
                 .thenReturn(new SharedStateResult(status, data));
+    }
+
+    @Test
+    public void testUpdateRequestEventIdsInProgressIsConcurrentHashMap() {
+        Assert.assertTrue(
+                (extension.getUpdateRequestEventIdsInProgress()) instanceof ConcurrentHashMap);
+    }
+
+    @Test
+    public void testPropositionsInProgressIsConcurrentHashMap() {
+        Assert.assertTrue(extension.getPropositionsInProgress() instanceof ConcurrentHashMap);
     }
 }
