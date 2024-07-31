@@ -62,20 +62,18 @@ class OptimizeExtension extends Extension {
 
     // Map containing the update event IDs (and corresponding requested scopes) for Edge events that
     // haven't yet received an Edge completion response.
-    // Updating the map type from Hashmap to ConcurrentHashMap to avoid the race condition to
-    // restrict it getting accessed by multiple threads
-    // Also declaring its reference as static and final because we have to make sure there is only
-    // one instance of the map for the singleton optimize extension class.
-    private static final Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
+    // Concurrent Map containing the update event IDs (and corresponding requested scopes) for Edge
+    // events that haven't yet received an Edge completion response.
+    // This is accessed from multiple threads.
+    private final Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
             new ConcurrentHashMap<>();
 
     // a dictionary to accumulate propositions returned in various personalization:decisions events
     // for the same Edge personalization request.
-    // Updating the map type from Hashmap to ConcurrentHashMap to avoid the race condition to
-    // restrict it getting accessed by multiple threads.
-    // Also declaring its reference as static and final because we have to make sure there is only
-    // one instance of the map for the singleton optimize extension class.
-    private static final Map<DecisionScope, OptimizeProposition> propositionsInProgress =
+    // Concurrent Map containing the get propositions (and corresponding requested scopes) for Edge
+    // events that are going to be pushed to the Edge network.
+    // This is accessed from multiple threads.
+    private final Map<DecisionScope, OptimizeProposition> propositionsInProgress =
             new ConcurrentHashMap<>();
 
     // List containing the schema strings for the proposition items supported by the SDK, sent in
@@ -118,8 +116,10 @@ class OptimizeExtension extends Extension {
      */
     protected OptimizeExtension(final ExtensionApi extensionApi) {
         super(extensionApi);
-
-        cachedPropositions = new HashMap<>();
+        /// Concurrent Map containing the get propositions (and corresponding requested scopes) for
+        // Edge events that are yet to be pushed to the Edge network.
+        // This is accessed from multiple threads.
+        cachedPropositions = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -879,8 +879,8 @@ class OptimizeExtension extends Extension {
     @VisibleForTesting
     void setPropositionsInProgress(
             final Map<DecisionScope, OptimizeProposition> propositionsInProgress) {
-        OptimizeExtension.propositionsInProgress.clear();
-        OptimizeExtension.propositionsInProgress.putAll(propositionsInProgress);
+        this.propositionsInProgress.clear();
+        this.propositionsInProgress.putAll(propositionsInProgress);
     }
 
     @VisibleForTesting
