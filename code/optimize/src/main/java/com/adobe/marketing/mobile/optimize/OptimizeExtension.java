@@ -36,7 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
 class OptimizeExtension extends Extension {
 
     private static final String SELF_TAG = "OptimizeExtension";
-    private Map<DecisionScope, OptimizeProposition> cachedPropositions;
+
+    // Concurrent Map containing the cached propositions returned in various
+    // personalization:decisions events
+    // for the same Edge personalization request.
+    // This is accessed from multiple threads.
+    private Map<DecisionScope, OptimizeProposition> cachedPropositions = new ConcurrentHashMap<>();
 
     // Events dispatcher used to maintain the processing order of update and get propositions
     // events.
@@ -60,8 +65,6 @@ class OptimizeExtension extends Extension {
                         }
                     });
 
-    // Map containing the update event IDs (and corresponding requested scopes) for Edge events that
-    // haven't yet received an Edge completion response.
     // Concurrent Map containing the update event IDs (and corresponding requested scopes) for Edge
     // events that haven't yet received an Edge completion response.
     // This is accessed from multiple threads.
@@ -70,8 +73,9 @@ class OptimizeExtension extends Extension {
 
     // a dictionary to accumulate propositions returned in various personalization:decisions events
     // for the same Edge personalization request.
-    // Concurrent Map containing the get propositions (and corresponding requested scopes) for Edge
-    // events that are going to be pushed to the Edge network.
+    // Concurrent Map to accumulate propositions returned in various personalization:decisions
+    // events
+    // for the same Edge personalization request.
     // This is accessed from multiple threads.
     private final Map<DecisionScope, OptimizeProposition> propositionsInProgress =
             new ConcurrentHashMap<>();
@@ -116,10 +120,6 @@ class OptimizeExtension extends Extension {
      */
     protected OptimizeExtension(final ExtensionApi extensionApi) {
         super(extensionApi);
-        /// Concurrent Map containing the get propositions (and corresponding requested scopes) for
-        // Edge events that are yet to be pushed to the Edge network.
-        // This is accessed from multiple threads.
-        cachedPropositions = new ConcurrentHashMap<>();
     }
 
     @Override
