@@ -71,8 +71,6 @@ class OptimizeExtension extends Extension {
     private final Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
             new ConcurrentHashMap<>();
 
-    // a dictionary to accumulate propositions returned in various personalization:decisions events
-    // for the same Edge personalization request.
     // Concurrent Map to accumulate propositions returned in various personalization:decisions
     // events
     // for the same Edge personalization request.
