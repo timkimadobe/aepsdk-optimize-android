@@ -19,12 +19,15 @@ import com.adobe.marketing.mobile.SharedStateResolution;
 import com.adobe.marketing.mobile.SharedStateResult;
 import com.adobe.marketing.mobile.SharedStateStatus;
 import com.adobe.marketing.mobile.services.Log;
+import com.adobe.marketing.mobile.util.DataReader;
 import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -1198,6 +1201,65 @@ public class OptimizeExtensionTests {
             Assert.assertEquals(0, extension.getPropositionsInProgress().size());
             Assert.assertEquals(0, extension.getCachedPropositions().size());
         }
+    }
+
+    @Test
+    public void testHandleEdgeResponse_missingItemData() throws IOException {
+        // Setup
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> edgeResponseData =
+                objectMapper.readValue(
+                        Objects.requireNonNull(getClass().getClassLoader())
+                                .getResource(
+                                        "json/EVENT_DATA_EDGE_RESPONSE_MISSING_ITEM_DATA.json"),
+                        HashMap.class);
+
+        Event testEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                "com.adobe.eventType.edge",
+                                "personalization:decisions")
+                        .setEventData(edgeResponseData)
+                        .build();
+
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        extension.setUpdateRequestEventIdsInProgress(
+                "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+                new ArrayList<DecisionScope>() {
+                    {
+                        add(new DecisionScope("someDecisionScope"));
+                    }
+                });
+        extension.handleEdgeResponse(testEvent);
+        Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
+
+        List<Map<String, Object>> propositionsList =
+                (List<Map<String, Object>>)
+                        eventCaptor.getValue().getEventData().get("propositions");
+
+        Assert.assertNotNull("Propositions list should not be null", propositionsList);
+
+        propositionsList.forEach(
+                proposition -> {
+                    try {
+                        List<Map<String, Object>> items =
+                                DataReader.getTypedListOfMap(
+                                        Object.class,
+                                        proposition,
+                                        OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
+                        Assert.assertNotNull("Items list should not be null", items);
+                        items.forEach(
+                                item -> {
+                                    Assert.assertNotNull(
+                                            "Item data should not be null",
+                                            item.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA));
+                                });
+                    } catch (Exception e) {
+                        Assert.fail(
+                                "Exception occurred during propositions processing: "
+                                        + e.getMessage());
+                    }
+                });
     }
 
     @Test

@@ -461,7 +461,8 @@ public class Offer {
 
             if (!OptimizeUtils.isNullOrEmpty(offerData)) {
                 final String nestedId =
-                        (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
+                        DataReader.getString(
+                                offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID);
                 if (OptimizeUtils.isNullOrEmpty(id) || !id.equals(nestedId)) {
                     Log.debug(
                             OptimizeConstants.LOG_TAG,
@@ -472,16 +473,16 @@ public class Offer {
                 }
 
                 final String format =
-                        (String) offerData.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
-                if (OptimizeUtils.isNullOrEmpty(format)) {
-                    Log.debug(
-                            OptimizeConstants.LOG_TAG,
-                            SELF_TAG,
-                            "Cannot create Offer object, provided data Map doesn't contain valid"
-                                    + " item data format.");
-                    return null;
-                }
-
+                        DataReader.getString(
+                                offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
+                final OfferType offerType =
+                        (format != null)
+                                ? OfferType.from(format)
+                                : OfferType.from(
+                                        DataReader.optString(
+                                                offerData,
+                                                OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_TYPE,
+                                                OfferType.UNKNOWN.name()));
                 final List<String> language =
                         DataReader.getStringList(
                                 offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE);
@@ -496,10 +497,10 @@ public class Offer {
                 } else if (offerData.containsKey(
                         OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL)) {
                     content =
-                            (String)
-                                    offerData.get(
-                                            OptimizeConstants.JsonKeys
-                                                    .PAYLOAD_ITEM_DATA_DELIVERYURL);
+                            DataReader.optString(
+                                    offerData,
+                                    OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_DELIVERYURL,
+                                    null);
                 }
                 if (content == null) {
                     Log.debug(
@@ -510,7 +511,7 @@ public class Offer {
                     return null;
                 }
 
-                return new Builder(id, OfferType.from(format), content)
+                return new Builder(id, offerType, content)
                         .setEtag(etag)
                         .setScore(score)
                         .setSchema(schema)
@@ -564,8 +565,8 @@ public class Offer {
         offerMap.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_META, this.meta);
 
         final Map<String, Object> data = new HashMap<>();
-        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_ID, this.id);
-        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT, this.type.toString());
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_ID, this.id);
+        data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_TYPE, this.type.toString());
         data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_CONTENT, this.content);
         data.put(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE, this.language);
         data.put(

@@ -1,0 +1,57 @@
+{
+  "payload": [
+    {
+      "scopeDetails": {
+        "characteristics": {
+          "eventToken": "someEventToken"
+        },
+        "activity": {
+          "id": "716226"
+        },
+        "strategies": [
+          {
+            "trafficType": "0",
+            "step": "entry"
+          },
+          {
+            "trafficType": "0",
+            "step": "display"
+          }
+        ],
+        "correlationID": "716226:0:0",
+        "decisionProvider": "TGT",
+        "experience": {
+          "id": "0"
+        }
+      },
+      "scope": "someDecisionScope",
+      "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "items": [
+        {
+          "schema": "https://ns.adobe.com/personalization/default-content-item",
+          "meta": {
+            "activity.name": "Some Test Activity",
+            "profile.timeNow": "1722212083855",
+            "profile.audienceUserNeed": "",
+            "profile.language": "",
+            "experience.name": "Default Content",
+            "profile.site": "",
+            "profile.url": "",
+            "profile.subjects": "",
+            "profile.path": "",
+            "profile.subjectPrimary": "",
+            "profile.translatedTabbedShelfTitle": "Discover SBS in 63 Languages",
+            "profile.environment": "production",
+            "profile.brandName": "",
+            "profile.audioChannelLastPlayed": "",
+            "profile.type": ""
+          },
+          "id": "0"
+        }
+      ]
+    }
+  ],
+  "requestId": "someRequestId",
+  "requestEventId": "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+  "type": "personalization:decisions"
+}
