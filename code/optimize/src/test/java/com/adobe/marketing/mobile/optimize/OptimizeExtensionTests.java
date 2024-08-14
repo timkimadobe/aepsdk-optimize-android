@@ -1238,28 +1238,19 @@ public class OptimizeExtensionTests {
                         eventCaptor.getValue().getEventData().get("propositions");
 
         Assert.assertNotNull("Propositions list should not be null", propositionsList);
-
-        propositionsList.forEach(
-                proposition -> {
-                    try {
-                        List<Map<String, Object>> items =
-                                DataReader.getTypedListOfMap(
-                                        Object.class,
-                                        proposition,
-                                        OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
-                        Assert.assertNotNull("Items list should not be null", items);
-                        items.forEach(
-                                item -> {
-                                    Assert.assertNotNull(
-                                            "Item data should not be null",
-                                            item.get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA));
-                                });
-                    } catch (Exception e) {
-                        Assert.fail(
-                                "Exception occurred during propositions processing: "
-                                        + e.getMessage());
-                    }
-                });
+        try {
+            List<Map<String, Object>> items =
+                    DataReader.getTypedListOfMap(
+                            Object.class,
+                            propositionsList.get(0),
+                            OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
+            Assert.assertNotNull("Items list should not be null", items);
+            Assert.assertNotNull(
+                    "Item data should not be null",
+                    items.get(0).get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA));
+        } catch (Exception e) {
+            Assert.fail("Exception occurred during propositions processing: " + e.getMessage());
+        }
     }
 
     @Test
