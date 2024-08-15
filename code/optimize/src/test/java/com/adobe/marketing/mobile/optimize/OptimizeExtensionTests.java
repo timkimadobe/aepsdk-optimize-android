@@ -19,7 +19,6 @@ import com.adobe.marketing.mobile.SharedStateResolution;
 import com.adobe.marketing.mobile.SharedStateResult;
 import com.adobe.marketing.mobile.SharedStateStatus;
 import com.adobe.marketing.mobile.services.Log;
-import com.adobe.marketing.mobile.util.DataReader;
 import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -1237,20 +1236,25 @@ public class OptimizeExtensionTests {
                 (List<Map<String, Object>>)
                         eventCaptor.getValue().getEventData().get("propositions");
 
-        Assert.assertNotNull("Propositions list should not be null", propositionsList);
-        try {
-            List<Map<String, Object>> items =
-                    DataReader.getTypedListOfMap(
-                            Object.class,
-                            propositionsList.get(0),
-                            OptimizeConstants.JsonKeys.PAYLOAD_ITEMS);
-            Assert.assertNotNull("Items list should not be null", items);
-            Assert.assertNotNull(
-                    "Item data should not be null",
-                    items.get(0).get(OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA));
-        } catch (Exception e) {
-            Assert.fail("Exception occurred during propositions processing: " + e.getMessage());
-        }
+        Assert.assertNotNull(propositionsList);
+        Assert.assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionsData = propositionsList.get(0);
+        Assert.assertNotNull(propositionsData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        final Offer offer = optimizeProposition.getOffers().get(0);
+        Assert.assertEquals("0", offer.getId());
+        Assert.assertNull(offer.getEtag());
+        Assert.assertEquals(
+                "https://ns.adobe.com/personalization/default-content-item", offer.getSchema());
+        Assert.assertEquals(OfferType.UNKNOWN, offer.getType());
+        Assert.assertEquals("", offer.getContent());
+        Assert.assertNull(offer.getCharacteristics());
+        Assert.assertNull(offer.getLanguage());
     }
 
     @Test

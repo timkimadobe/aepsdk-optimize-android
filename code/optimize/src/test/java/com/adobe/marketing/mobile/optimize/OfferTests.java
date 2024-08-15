@@ -14,8 +14,6 @@ package com.adobe.marketing.mobile.optimize;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.MobileCore;
 import com.adobe.marketing.mobile.services.Log;
-import com.adobe.marketing.mobile.util.DataReader;
-import com.adobe.marketing.mobile.util.DataReaderException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -345,7 +343,7 @@ public class OfferTests {
         Assert.assertNull(offer);
     }
 
-    @Test(expected = DataReaderException.class)
+    @Test
     public void testFromEventData_invalidOfferFormatTypeIsNotString() throws Exception {
         Map<String, Object> offerData =
                 new ObjectMapper()
@@ -354,10 +352,8 @@ public class OfferTests {
                                         .getClassLoader()
                                         .getResource("json/OFFER_INVALID_FORMAT_TYPE.json"),
                                 HashMap.class);
-        final Map<String, Object> offerDataMap =
-                DataReader.getTypedMap(
-                        Object.class, offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA);
-        DataReader.getString(offerDataMap, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
+        final Offer offer = Offer.fromEventData(offerData);
+        Assert.assertNull(offer);
     }
 
     @Test

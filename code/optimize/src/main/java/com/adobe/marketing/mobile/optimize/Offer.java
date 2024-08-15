@@ -472,15 +472,16 @@ public class Offer {
                     return null;
                 }
 
+                final String format =
+                        DataReader.getString(
+                                offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT);
                 final OfferType offerType =
-                        OfferType.from(
-                                DataReader.optString(
-                                        offerData,
-                                        OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_FORMAT,
-                                        DataReader.optString(
+                        (format != null)
+                                ? OfferType.from(format)
+                                : OfferType.from(
+                                        DataReader.getString(
                                                 offerData,
-                                                OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_TYPE,
-                                                OfferType.UNKNOWN.name())));
+                                                OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_TYPE));
                 final List<String> language =
                         DataReader.getStringList(
                                 offerData, OptimizeConstants.JsonKeys.PAYLOAD_ITEM_DATA_LANGUAGE);
