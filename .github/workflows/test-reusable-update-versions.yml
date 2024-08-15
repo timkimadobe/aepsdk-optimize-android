@@ -1,0 +1,36 @@
+name: Update Versions (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version to use for the Edge extension. Example: 3.0.0'
+        required: true
+        type: string
+
+      branch:
+        description: 'Branch to be used when updating versions'
+        required: true
+        type: string
+
+      core-dependency:
+        description: 'Version of Core dependency to update. Example: 1.2.3'
+        required: false
+        type: string
+
+      edge-dependency:
+        description: 'Version of Edge dependency to update. Example: 1.5.2'
+        required: false
+        type: string
+
+jobs:
+  update-versions:
+    uses: timkimadobe/aepsdk-commons/.github/workflows/android-reusable-update-versions.yml@android-reusable-workflows
+    with:
+      version: ${{ github.event.inputs.version }}
+      branch: ${{ github.event.inputs.branch }}
+      dependencies: |
+        Core ${{ github.event.inputs.core-dependency }}, Edge ${{ github.event.inputs.edge-dependency }};
+      constants-paths: >
+        code/optimize/src/main/java/com/adobe/marketing/mobile/optimize/OptimizeConstants.java,
+        code/optimize/src/androidTest/java/com/adobe/marketing/mobile/optimize/OptimizeTestConstants.java
