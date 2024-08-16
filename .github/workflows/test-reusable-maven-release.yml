@@ -1,0 +1,36 @@
+name: Publish Release (Android)
+
+on: 
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'tag/version'
+        required: true        
+
+      action_tag:
+        description: 'Create tag? ("no" to skip)'
+        required: true
+        default: 'yes'
+
+on: 
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag/version (ex: 5.0.1)'
+        required: true
+        type: string
+
+      create-github-release:
+        description: 'Create GitHub release with tag? (`false` to skip)'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  update-versions:
+    uses: timkimadobe/aepsdk-commons/.github/workflows/android-update-versions.yml@android-reusable-workflows
+    with:
+      tag: ${{ github.event.inputs.tag }}
+      create-github-release: ${{ github.event.inputs.create-github-release }}
+      constants-paths: >
+        code/optimize/src/main/java/com/adobe/marketing/mobile/optimize/OptimizeConstants.java
