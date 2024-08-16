@@ -16,7 +16,7 @@ on:
 
 jobs:
   update-versions:
-    uses: timkimadobe/aepsdk-commons/.github/workflows/android-update-versions.yml@android-reusable-workflows
+    uses: timkimadobe/aepsdk-commons/.github/workflows/android-maven-release.yml@android-reusable-workflows
     with:
       tag: ${{ github.event.inputs.tag }}
       create-github-release: ${{ github.event.inputs.create-github-release }}
