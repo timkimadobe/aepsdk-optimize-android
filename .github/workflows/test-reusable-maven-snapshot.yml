@@ -1,0 +1,9 @@
+name: Update Versions (Android)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  maven-snapshot:
+    uses: timkimadobe/aepsdk-commons/.github/workflows/android-maven-snapshot.yml@android-reusable-workflows
+    secrets: inherit
