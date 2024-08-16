@@ -33,4 +33,3 @@ jobs:
       constants-paths: >
         code/optimize/src/main/java/com/adobe/marketing/mobile/optimize/OptimizeConstants.java,
         code/optimize/src/androidTest/java/com/adobe/marketing/mobile/optimize/OptimizeTestConstants.java
-
