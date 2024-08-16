@@ -19,6 +19,6 @@ jobs:
     uses: timkimadobe/aepsdk-commons/.github/workflows/android-maven-release.yml@android-reusable-workflows
     with:
       tag: ${{ github.event.inputs.tag }}
-      create-github-release: github.event.inputs.create-github-release
+      create-github-release: ${{ github.event.inputs.create-github-release }}
       constants-paths: >
         code/optimize/src/main/java/com/adobe/marketing/mobile/optimize/OptimizeConstants.java
