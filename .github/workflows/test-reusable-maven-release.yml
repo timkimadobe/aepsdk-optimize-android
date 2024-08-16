@@ -4,18 +4,6 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'tag/version'
-        required: true        
-
-      action_tag:
-        description: 'Create tag? ("no" to skip)'
-        required: true
-        default: 'yes'
-
-on: 
-  workflow_dispatch:
-    inputs:
-      tag:
         description: 'Tag/version (ex: 5.0.1)'
         required: true
         type: string
