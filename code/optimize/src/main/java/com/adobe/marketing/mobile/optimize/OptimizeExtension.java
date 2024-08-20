@@ -31,11 +31,17 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 class OptimizeExtension extends Extension {
 
     private static final String SELF_TAG = "OptimizeExtension";
-    private Map<DecisionScope, OptimizeProposition> cachedPropositions;
+
+    // Concurrent Map containing the cached propositions returned in various
+    // personalization:decisions events
+    // for the same Edge personalization request.
+    // This is accessed from multiple threads.
+    private Map<DecisionScope, OptimizeProposition> cachedPropositions = new ConcurrentHashMap<>();
 
     // Events dispatcher used to maintain the processing order of update and get propositions
     // events.
@@ -59,13 +65,18 @@ class OptimizeExtension extends Extension {
                         }
                     });
 
-    // Map containing the update event IDs (and corresponding requested scopes) for Edge events that
-    // haven't yet received an Edge completion response.
-    private Map<String, List<DecisionScope>> updateRequestEventIdsInProgress = new HashMap<>();
+    // Concurrent Map containing the update event IDs (and corresponding requested scopes) for Edge
+    // events that haven't yet received an Edge completion response.
+    // This is accessed from multiple threads.
+    private final Map<String, List<DecisionScope>> updateRequestEventIdsInProgress =
+            new ConcurrentHashMap<>();
 
-    // a dictionary to accumulate propositions returned in various personalization:decisions events
+    // Concurrent Map to accumulate propositions returned in various personalization:decisions
+    // events
     // for the same Edge personalization request.
-    private Map<DecisionScope, OptimizeProposition> propositionsInProgress = new HashMap<>();
+    // This is accessed from multiple threads.
+    private final Map<DecisionScope, OptimizeProposition> propositionsInProgress =
+            new ConcurrentHashMap<>();
 
     // List containing the schema strings for the proposition items supported by the SDK, sent in
     // the personalization query request.
@@ -107,8 +118,6 @@ class OptimizeExtension extends Extension {
      */
     protected OptimizeExtension(final ExtensionApi extensionApi) {
         super(extensionApi);
-
-        cachedPropositions = new HashMap<>();
     }
 
     @Override
@@ -868,7 +877,8 @@ class OptimizeExtension extends Extension {
     @VisibleForTesting
     void setPropositionsInProgress(
             final Map<DecisionScope, OptimizeProposition> propositionsInProgress) {
-        this.propositionsInProgress = propositionsInProgress;
+        this.propositionsInProgress.clear();
+        this.propositionsInProgress.putAll(propositionsInProgress);
     }
 
     @VisibleForTesting

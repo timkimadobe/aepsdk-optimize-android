@@ -21,10 +21,12 @@ import com.adobe.marketing.mobile.SharedStateStatus;
 import com.adobe.marketing.mobile.services.Log;
 import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -1198,6 +1200,61 @@ public class OptimizeExtensionTests {
             Assert.assertEquals(0, extension.getPropositionsInProgress().size());
             Assert.assertEquals(0, extension.getCachedPropositions().size());
         }
+    }
+
+    @Test
+    public void testHandleEdgeResponse_missingItemData() throws IOException {
+        // Setup
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> edgeResponseData =
+                objectMapper.readValue(
+                        Objects.requireNonNull(getClass().getClassLoader())
+                                .getResource(
+                                        "json/EVENT_DATA_EDGE_RESPONSE_MISSING_ITEM_DATA.json"),
+                        HashMap.class);
+
+        Event testEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                "com.adobe.eventType.edge",
+                                "personalization:decisions")
+                        .setEventData(edgeResponseData)
+                        .build();
+
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        extension.setUpdateRequestEventIdsInProgress(
+                "AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+                new ArrayList<DecisionScope>() {
+                    {
+                        add(new DecisionScope("someDecisionScope"));
+                    }
+                });
+        extension.handleEdgeResponse(testEvent);
+        Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
+
+        List<Map<String, Object>> propositionsList =
+                (List<Map<String, Object>>)
+                        eventCaptor.getValue().getEventData().get("propositions");
+
+        Assert.assertNotNull(propositionsList);
+        Assert.assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionsData = propositionsList.get(0);
+        Assert.assertNotNull(propositionsData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        final Offer offer = optimizeProposition.getOffers().get(0);
+        Assert.assertEquals("0", offer.getId());
+        Assert.assertNull(offer.getEtag());
+        Assert.assertEquals(
+                "https://ns.adobe.com/personalization/default-content-item", offer.getSchema());
+        Assert.assertEquals(OfferType.UNKNOWN, offer.getType());
+        Assert.assertEquals("", offer.getContent());
+        Assert.assertNull(offer.getCharacteristics());
+        Assert.assertNull(offer.getLanguage());
     }
 
     @Test
