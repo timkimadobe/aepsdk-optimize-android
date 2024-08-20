@@ -318,19 +318,6 @@ public class OfferTests {
     }
 
     @Test
-    public void testFromEventData_invalidOfferNoFormat() throws Exception {
-        Map<String, Object> offerData =
-                new ObjectMapper()
-                        .readValue(
-                                getClass()
-                                        .getClassLoader()
-                                        .getResource("json/OFFER_INVALID_MISSING_FORMAT.json"),
-                                HashMap.class);
-        final Offer offer = Offer.fromEventData(offerData);
-        Assert.assertNull(offer);
-    }
-
-    @Test
     public void testFromEventData_invalidOfferNoItemData() throws Exception {
         Map<String, Object> offerData =
                 new ObjectMapper()
@@ -351,6 +338,19 @@ public class OfferTests {
                                 getClass()
                                         .getClassLoader()
                                         .getResource("json/OFFER_INVALID_ID_MISMATCH.json"),
+                                HashMap.class);
+        final Offer offer = Offer.fromEventData(offerData);
+        Assert.assertNull(offer);
+    }
+
+    @Test
+    public void testFromEventData_invalidOfferFormatTypeIsNotString() throws Exception {
+        Map<String, Object> offerData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/OFFER_INVALID_FORMAT_TYPE.json"),
                                 HashMap.class);
         final Offer offer = Offer.fromEventData(offerData);
         Assert.assertNull(offer);

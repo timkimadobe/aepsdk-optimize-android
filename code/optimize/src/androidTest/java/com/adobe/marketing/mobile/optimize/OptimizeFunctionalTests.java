@@ -673,6 +673,170 @@ public class OptimizeFunctionalTests {
         Assert.assertEquals(1, offer.getCharacteristics().size());
         Assert.assertEquals("true", offer.getCharacteristics().get("testing"));
     }
+    // 7a
+    @Test
+    public void testGetPropositions_defaultContentItem() throws InterruptedException, IOException {
+        // setup
+        final Map<String, Object> configData = new HashMap<>();
+        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+        updateConfiguration(configData);
+
+        final String decisionScopeString = "someDecisionScope";
+        Optimize.updatePropositions(
+                Collections.singletonList(new DecisionScope(decisionScopeString)), null, null);
+        List<Event> eventsListEdge =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.EDGE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+        Assert.assertEquals(1, eventsListEdge.size());
+        Event edgeEvent = eventsListEdge.get(0);
+        final String requestEventId = edgeEvent.getUniqueIdentifier();
+        Assert.assertFalse(requestEventId.isEmpty());
+
+        // Send Edge Response event
+        final String edgeResponseData =
+                "{\r\n"
+                    + "      \"payload\": [\r\n"
+                    + "        {\r\n"
+                    + "          \"scopeDetails\": {\r\n"
+                    + "            \"characteristics\": {\r\n"
+                    + "              \"eventToken\": \"someEventToken\"\r\n"
+                    + "            },\r\n"
+                    + "            \"activity\": {\r\n"
+                    + "              \"id\": \"716226\"\r\n"
+                    + "            },\r\n"
+                    + "            \"strategies\": [\r\n"
+                    + "              {\r\n"
+                    + "                \"trafficType\": \"0\",\r\n"
+                    + "                \"step\": \"entry\"\r\n"
+                    + "              },\r\n"
+                    + "              {\r\n"
+                    + "                \"trafficType\": \"0\",\r\n"
+                    + "                \"step\": \"display\"\r\n"
+                    + "              }\r\n"
+                    + "            ],\r\n"
+                    + "            \"correlationID\": \"716226:0:0\",\r\n"
+                    + "            \"decisionProvider\": \"TGT\",\r\n"
+                    + "            \"experience\": {\r\n"
+                    + "              \"id\": \"0\"\r\n"
+                    + "            }\r\n"
+                    + "          },\r\n"
+                    + "          \"scope\": \"someDecisionScope\",\r\n"
+                    + "          \"id\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\r\n"
+                    + "          \"items\": [\r\n"
+                    + "            {\r\n"
+                    + "              \"schema\":"
+                    + " \"https://ns.adobe.com/personalization/default-content-item\",\r\n"
+                    + "              \"meta\": {\r\n"
+                    + "                \"activity.name\": \"Some Test Activity\",\r\n"
+                    + "                \"profile.timeNow\": \"1722212083855\",\r\n"
+                    + "                \"profile.audienceUserNeed\": \"\",\r\n"
+                    + "                \"profile.language\": \"\",\r\n"
+                    + "                \"experience.name\": \"Default Content\",\r\n"
+                    + "                \"profile.site\": \"\",\r\n"
+                    + "                \"profile.url\": \"\",\r\n"
+                    + "                \"profile.subjects\": \"\",\r\n"
+                    + "                \"profile.path\": \"\",\r\n"
+                    + "                \"profile.subjectPrimary\": \"\",\r\n"
+                    + "                \"profile.translatedTabbedShelfTitle\": \"Discover SBS in 63"
+                    + " Languages\",\r\n"
+                    + "                \"profile.environment\": \"production\",\r\n"
+                    + "                \"profile.brandName\": \"\",\r\n"
+                    + "                \"profile.audioChannelLastPlayed\": \"\",\r\n"
+                    + "                \"profile.type\": \"\"\r\n"
+                    + "              },\r\n"
+                    + "              \"id\": \"0\"\r\n"
+                    + "            }\r\n"
+                    + "          ]\r\n"
+                    + "        }\r\n"
+                    + "      ],\r\n"
+                    + "      \"requestId\": \"someRequestId\",\r\n"
+                    + "      \"requestEventId\": \""
+                        + requestEventId
+                        + "\",\r\n      \"type\": \"personalization:decisions\"\r\n    }";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> eventData =
+                objectMapper.readValue(
+                        edgeResponseData, new TypeReference<Map<String, Object>>() {});
+
+        Event event =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
+                        .setEventData(eventData)
+                        .build();
+
+        // Action
+        MobileCore.dispatchEvent(event);
+
+        Thread.sleep(1000);
+
+        // Send completion event
+        Map<String, Object> completionEventData =
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", requestEventId);
+                    }
+                };
+        Event completionEvent =
+                new Event.Builder(
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                        .setEventData(completionEventData)
+                        .build();
+        MobileCore.dispatchEvent(completionEvent);
+
+        Thread.sleep(1000);
+        TestHelper.resetTestExpectations();
+        DecisionScope decisionScope = new DecisionScope(decisionScopeString);
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
+        final ADBCountDownLatch countDownLatch = new ADBCountDownLatch(1);
+        Optimize.getPropositions(
+                Collections.singletonList(decisionScope),
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
+                    @Override
+                    public void fail(AdobeError adobeError) {
+                        Assert.fail("Error in getting cached propositions");
+                    }
+
+                    @Override
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
+                        propositionMap.putAll(decisionScopePropositionMap);
+                        countDownLatch.countDown();
+                    }
+                });
+
+        countDownLatch.await(1, TimeUnit.SECONDS);
+        // Assertions
+        List<Event> optimizeResponseEventsList =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.OPTIMIZE,
+                        OptimizeTestConstants.EventSource.RESPONSE_CONTENT);
+
+        Assert.assertNotNull(optimizeResponseEventsList);
+        Assert.assertEquals(1, optimizeResponseEventsList.size());
+        Assert.assertNull(optimizeResponseEventsList.get(0).getEventData().get("responseerror"));
+        Assert.assertEquals(1, propositionMap.size());
+        OptimizeProposition optimizeProposition = propositionMap.get(decisionScope);
+        Assert.assertNotNull(optimizeProposition);
+        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizeProposition.getId());
+        Assert.assertEquals("someDecisionScope", optimizeProposition.getScope());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        Offer offer = optimizeProposition.getOffers().get(0);
+        Assert.assertEquals("0", offer.getId());
+        Assert.assertEquals(null, offer.getEtag());
+        Assert.assertEquals(0, offer.getScore());
+        Assert.assertEquals(
+                "https://ns.adobe.com/personalization/default-content-item", offer.getSchema());
+        Assert.assertEquals(OfferType.UNKNOWN, offer.getType());
+        Assert.assertEquals("", offer.getContent());
+    }
 
     // 7b
     @Test
