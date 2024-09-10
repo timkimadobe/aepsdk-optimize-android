@@ -1300,61 +1300,74 @@ public class OptimizeExtensionTests {
     @Test
     public void testHandleOptimizeRequestContent_GetPropositionsEvent_shouldAddToSerialDispatcher()
             throws Exception {
-        extension.setEventsDispatcher(mockEventsDispatcher);
-        setConfigurationSharedState(
-                SharedStateStatus.SET,
-                new HashMap<String, Object>() {
-                    {
-                        put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
-                    }
-                });
+        try (MockedStatic<Base64> base64MockedStatic = Mockito.mockStatic(Base64.class)) {
+            base64MockedStatic
+                    .when(
+                            () ->
+                                    Base64.decode(
+                                            ArgumentMatchers.anyString(),
+                                            ArgumentMatchers.anyInt()))
+                    .thenAnswer(
+                            (Answer<byte[]>)
+                                    invocation ->
+                                            java.util.Base64.getDecoder()
+                                                    .decode((String) invocation.getArguments()[0]));
+            extension.setEventsDispatcher(mockEventsDispatcher);
+            setConfigurationSharedState(
+                    SharedStateStatus.SET,
+                    new HashMap<String, Object>() {
+                        {
+                            put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+                        }
+                    });
 
-        final DecisionScope testScope =
-                new DecisionScope(
-                        "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
-        final Map<String, Object> testEventData = new HashMap<>();
-        testEventData.put("requesttype", "getpropositions");
-        testEventData.put(
-                "decisionscopes",
-                new ArrayList<Map<String, Object>>() {
-                    {
-                        add(testScope.toEventData());
-                    }
-                });
-        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+            final DecisionScope testScope =
+                    new DecisionScope(
+                            "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==");
+            final Map<String, Object> testEventData = new HashMap<>();
+            testEventData.put("requesttype", "getpropositions");
+            testEventData.put(
+                    "decisionscopes",
+                    new ArrayList<Map<String, Object>>() {
+                        {
+                            add(testScope.toEventData());
+                        }
+                    });
+            final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
 
-        final Event testEvent =
-                new Event.Builder(
-                                "Optimize Get Propositions Request",
-                                "com.adobe.eventType.optimize",
-                                "com.adobe.eventSource.requestContent")
-                        .setEventData(testEventData)
-                        .build();
+            final Event testEvent =
+                    new Event.Builder(
+                            "Optimize Get Propositions Request",
+                            "com.adobe.eventType.optimize",
+                            "com.adobe.eventSource.requestContent")
+                            .setEventData(testEventData)
+                            .build();
 
-        // test
-        extension.handleOptimizeRequestContent(testEvent);
+            // test
+            extension.handleOptimizeRequestContent(testEvent);
 
-        // verify
-        Mockito.verify(mockEventsDispatcher, Mockito.times(1)).offer(eventCaptor.capture());
+            // verify
+            Mockito.verify(mockEventsDispatcher, Mockito.times(1)).offer(eventCaptor.capture());
 
-        final Event queuedEvent = eventCaptor.getValue();
-        Assert.assertEquals("Optimize Get Propositions Request", queuedEvent.getName());
-        Assert.assertEquals("com.adobe.eventType.optimize", queuedEvent.getType());
-        Assert.assertEquals("com.adobe.eventSource.requestContent", queuedEvent.getSource());
+            final Event queuedEvent = eventCaptor.getValue();
+            Assert.assertEquals("Optimize Get Propositions Request", queuedEvent.getName());
+            Assert.assertEquals("com.adobe.eventType.optimize", queuedEvent.getType());
+            Assert.assertEquals("com.adobe.eventSource.requestContent", queuedEvent.getSource());
 
-        final String requestType = (String) queuedEvent.getEventData().get("requesttype");
-        Assert.assertEquals("getpropositions", requestType);
+            final String requestType = (String) queuedEvent.getEventData().get("requesttype");
+            Assert.assertEquals("getpropositions", requestType);
 
-        final List<Map<String, Object>> scopesData =
-                (List<Map<String, Object>>) queuedEvent.getEventData().get("decisionscopes");
-        Assert.assertNotNull(scopesData);
-        final List<DecisionScope> scopes = new ArrayList<>();
-        for (final Map<String, Object> scopeData : scopesData) {
-            final DecisionScope scope = DecisionScope.fromEventData(scopeData);
-            scopes.add(scope);
+            final List<Map<String, Object>> scopesData =
+                    (List<Map<String, Object>>) queuedEvent.getEventData().get("decisionscopes");
+            Assert.assertNotNull(scopesData);
+            final List<DecisionScope> scopes = new ArrayList<>();
+            for (final Map<String, Object> scopeData : scopesData) {
+                final DecisionScope scope = DecisionScope.fromEventData(scopeData);
+                scopes.add(scope);
+            }
+            Assert.assertEquals(1, scopes.size());
+            Assert.assertEquals(testScope, scopes.get(0));
         }
-        Assert.assertEquals(1, scopes.size());
-        Assert.assertEquals(testScope, scopes.get(0));
     }
 
     @Test
