@@ -2397,7 +2397,6 @@ public class OptimizeExtensionTests {
                         }
                     });
 
-
             // prepare cache data
             final Map<String, Object> cachedPropositionData =
                     new ObjectMapper()
@@ -2415,14 +2414,12 @@ public class OptimizeExtensionTests {
                                             .getResource("json/PROPOSITION_VALID_TARGET.json"),
                                     HashMap.class);
 
-
             final OptimizeProposition cachedProposition =
                     OptimizeProposition.fromEventData(cachedPropositionData);
             final OptimizeProposition updatedProposition =
                     OptimizeProposition.fromEventData(updatedPropositionData);
 
-            final DecisionScope decisionScope =
-                    new DecisionScope(cachedProposition.getScope());
+            final DecisionScope decisionScope = new DecisionScope(cachedProposition.getScope());
             Assert.assertNotNull(cachedProposition);
 
             // updating the cache
@@ -2442,12 +2439,11 @@ public class OptimizeExtensionTests {
                     });
             final Event updateEvent =
                     new Event.Builder(
-                            "Optimize Update Propositions Request",
-                            "com.adobe.eventType.optimize",
-                            "com.adobe.eventSource.requestContent")
+                                    "Optimize Update Propositions Request",
+                                    "com.adobe.eventType.optimize",
+                                    "com.adobe.eventSource.requestContent")
                             .setEventData(testEventData)
                             .build();
-
 
             // simulate update
             extension.handleOptimizeRequestContent(updateEvent);
@@ -2479,18 +2475,18 @@ public class OptimizeExtensionTests {
 
             final Event testGetEvent =
                     new Event.Builder(
-                            "Optimize Get Propositions Request",
-                            "com.adobe.eventType.optimize",
-                            "com.adobe.eventSource.requestContent")
+                                    "Optimize Get Propositions Request",
+                                    "com.adobe.eventType.optimize",
+                                    "com.adobe.eventSource.requestContent")
                             .setEventData(testGetEventData)
                             .build();
 
             // prepare update complete event
             final Event testUpdateCompleteEvent =
                     new Event.Builder(
-                            "Optimize Update Propositions Complete",
-                            "com.adobe.eventType.optimize",
-                            "com.adobe.eventSource.contentComplete")
+                                    "Optimize Update Propositions Complete",
+                                    "com.adobe.eventType.optimize",
+                                    "com.adobe.eventSource.contentComplete")
                             .setEventData(
                                     new HashMap<String, Object>() {
                                         {
@@ -2509,8 +2505,8 @@ public class OptimizeExtensionTests {
             extension.handleUpdatePropositionsCompleted(testUpdateCompleteEvent);
 
             // verify
-//            Mockito.verify(mockEventsDispatcher, Mockito.after(2000L).times(1))
-//                    .offer(eventCaptor.capture());
+            //            Mockito.verify(mockEventsDispatcher, Mockito.after(2000L).times(1))
+            //                    .offer(eventCaptor.capture());
 
             Mockito.verify(mockExtensionApi, Mockito.after(2000L).times(1))
                     .dispatch(eventCaptor.capture());
