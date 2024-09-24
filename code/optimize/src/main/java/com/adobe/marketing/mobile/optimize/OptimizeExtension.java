@@ -230,15 +230,19 @@ class OptimizeExtension extends Extension {
                                     Object.class,
                                     eventData,
                                     OptimizeConstants.EventDataKeys.DECISION_SCOPES);
-                    List<DecisionScope> eventDecisionScopes = retrieveValidDecisionScopes(decisionScopesData);
+                    List<DecisionScope> eventDecisionScopes =
+                            retrieveValidDecisionScopes(decisionScopesData);
 
                     if (OptimizeUtils.isNullOrEmpty(eventDecisionScopes)) {
                         Log.debug(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleGetPropositions - Cannot process the get propositions request event,"
-                                        + " provided list of decision scopes has no valid scope.");
-                        getApi().dispatch(createResponseEventWithError(event, AdobeError.UNEXPECTED_ERROR));
+                                "handleGetPropositions - Cannot process the get propositions"
+                                        + " request event, provided list of decision scopes has no"
+                                        + " valid scope.");
+                        getApi().dispatch(
+                                        createResponseEventWithError(
+                                                event, AdobeError.UNEXPECTED_ERROR));
                         return;
                     }
 
@@ -259,11 +263,13 @@ class OptimizeExtension extends Extension {
                         }
                     }
 
-                    if ((fetchedPropositions.size() == eventDecisionScopes.size()) && !anyScopeInProgress) {
+                    if ((fetchedPropositions.size() == eventDecisionScopes.size())
+                            && !anyScopeInProgress) {
                         Log.trace(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleOptimizeRequestContent - All scopes are cached and none are in progress, dispatching event directly.");
+                                "handleOptimizeRequestContent - All scopes are cached and none are"
+                                        + " in progress, dispatching event directly.");
 
                         // Dispatch the event directly
                         handleGetPropositions(event);
@@ -271,16 +277,17 @@ class OptimizeExtension extends Extension {
                         Log.trace(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleOptimizeRequestContent - Scopes are not fully cached or are in progress, adding event to dispatcher.");
+                                "handleOptimizeRequestContent - Scopes are not fully cached or are"
+                                        + " in progress, adding event to dispatcher.");
                         eventsDispatcher.offer(event);
                     }
                     break;
-                }  catch (final Exception e) {
+                } catch (final Exception e) {
                     Log.warning(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "handleUpdatePropositions - Failed to process update propositions request event"
-                                    + " due to an exception (%s)!",
+                            "handleUpdatePropositions - Failed to process update propositions"
+                                    + " request event due to an exception (%s)!",
                             e.getLocalizedMessage());
                 }
                 break;
