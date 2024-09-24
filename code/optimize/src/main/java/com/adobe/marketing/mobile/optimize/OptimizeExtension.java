@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 class OptimizeExtension extends Extension {
@@ -267,7 +266,7 @@ class OptimizeExtension extends Extension {
 
                     // Check if all scopes are cached and none are in progress
                     boolean anyScopeInProgress = false;
-                    Set<DecisionScope> scopesInProgress = new HashSet<>();
+                    HashSet<DecisionScope> scopesInProgress = new HashSet<>();
                     for (List<DecisionScope> updatingScope :
                             updateRequestEventIdsInProgress.values()) {
                         scopesInProgress.addAll(updatingScope);
