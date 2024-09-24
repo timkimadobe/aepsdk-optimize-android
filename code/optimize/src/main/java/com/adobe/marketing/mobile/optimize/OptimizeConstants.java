@@ -13,7 +13,7 @@ package com.adobe.marketing.mobile.optimize;
 
 class OptimizeConstants {
     static final String LOG_TAG = "Optimize";
-    static final String EXTENSION_VERSION = "3.0.1";
+    static final String EXTENSION_VERSION = "3.0.2";
     static final String EXTENSION_NAME = "com.adobe.optimize";
     static final String FRIENDLY_NAME = "Optimize";
     static final long DEFAULT_RESPONSE_CALLBACK_TIMEOUT = 500L;
@@ -129,6 +129,7 @@ class OptimizeConstants {
         static final String PAYLOAD_ITEM_DATA_CONTENT = "content";
         static final String PAYLOAD_ITEM_DATA_DELIVERYURL = "deliveryURL";
         static final String PAYLOAD_ITEM_DATA_FORMAT = "format";
+        static final String PAYLOAD_ITEM_DATA_TYPE = "type";
         static final String PAYLOAD_ITEM_DATA_LANGUAGE = "language";
         static final String PAYLOAD_ITEM_DATA_CHARACTERISTICS = "characteristics";
 
