@@ -29,8 +29,10 @@ import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 class OptimizeExtension extends Extension {
 
@@ -256,8 +258,13 @@ class OptimizeExtension extends Extension {
 
                     // Check if all scopes are cached and none are in progress
                     boolean anyScopeInProgress = false;
+                    Set<DecisionScope> scopesInProgress = new HashSet<>();
+                    for (List<DecisionScope> updatingScope :
+                            updateRequestEventIdsInProgress.values()) {
+                        scopesInProgress.addAll(updatingScope);
+                    }
                     for (DecisionScope scope : eventDecisionScopes) {
-                        if (propositionsInProgress.containsKey(scope)) {
+                        if (scopesInProgress.contains(scope)) {
                             anyScopeInProgress = true;
                             break;
                         }

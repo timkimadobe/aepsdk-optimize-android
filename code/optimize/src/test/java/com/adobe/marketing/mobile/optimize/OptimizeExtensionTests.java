@@ -1561,7 +1561,7 @@ public class OptimizeExtensionTests {
             extension.handleUpdatePropositionsCompleted(testUpdateCompleteEvent);
 
             // verify
-            Mockito.verify(mockExtensionApi, Mockito.after(5000L).times(1))
+            Mockito.verify(mockExtensionApi, Mockito.after(2000L).times(1))
                     .dispatch(eventCaptor.capture());
             final Event dispatchedEvent = eventCaptor.getValue();
             Assert.assertEquals("Optimize Response", dispatchedEvent.getName());
