@@ -380,16 +380,43 @@ class OptimizeExtension extends Extension {
                             updateRequestEventIdsInProgress.remove(edgeEvent.getUniqueIdentifier());
                             propositionsInProgress.clear();
 
+                            AEPOptimizeError aepOptimizeError;
+                            if (error == AdobeError.CALLBACK_TIMEOUT) {
+                                aepOptimizeError = AEPOptimizeError.Companion.getTimeoutError();
+                            } else {
+                                aepOptimizeError = AEPOptimizeError.Companion.getUnexpectedError();
+                            }
+
+                            getApi().dispatch(
+                                            createResponseEventWithError(event, aepOptimizeError));
+
                             eventsDispatcher.resume();
                         }
 
                         @Override
-                        public void call(final Event event) {
-                            final String requestEventId = OptimizeUtils.getRequestEventId(event);
+                        public void call(final Event callbackEvent) {
+                            final String requestEventId =
+                                    OptimizeUtils.getRequestEventId(callbackEvent);
                             if (OptimizeUtils.isNullOrEmpty(requestEventId)) {
                                 fail(AdobeError.UNEXPECTED_ERROR);
                                 return;
                             }
+
+                            final Map<String, Object> responseEventData = new HashMap<>();
+                            responseEventData.put(
+                                    OptimizeConstants.EventDataKeys.PROPOSITIONS,
+                                    propositionsInProgress);
+
+                            final Event responseEvent =
+                                    new Event.Builder(
+                                                    OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                                                    OptimizeConstants.EventType.OPTIMIZE,
+                                                    OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                                            .setEventData(responseEventData)
+                                            .inResponseToEvent(event)
+                                            .build();
+
+                            getApi().dispatch(responseEvent);
 
                             final Event updateCompleteEvent =
                                     new Event.Builder(
@@ -849,6 +876,19 @@ class OptimizeExtension extends Extension {
     private Event createResponseEventWithError(final Event event, final AdobeError error) {
         final Map<String, Object> eventData = new HashMap<>();
         eventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR, error.getErrorCode());
+
+        return new Event.Builder(
+                        OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,
+                        OptimizeConstants.EventType.OPTIMIZE,
+                        OptimizeConstants.EventSource.RESPONSE_CONTENT)
+                .setEventData(eventData)
+                .inResponseToEvent(event)
+                .build();
+    }
+
+    private Event createResponseEventWithError(final Event event, final AEPOptimizeError error) {
+        final Map<String, Object> eventData = new HashMap<>();
+        eventData.put(OptimizeConstants.EventDataKeys.RESPONSE_ERROR, error);
 
         return new Event.Builder(
                         OptimizeConstants.EventNames.OPTIMIZE_RESPONSE,

@@ -62,12 +62,43 @@ public class Optimize {
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data) {
+
+        updatePropositions(decisionScopes, xdm, data, null);
+    }
+
+    /**
+     * This API dispatches an Event for the Edge network extension to fetch decision propositions,
+     * for the provided decision scopes list, from the decisioning services enabled in the
+     * Experience Edge network.
+     *
+     * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
+     * can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
+     *
+     * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
+     *     be updated.
+     * @param xdm {@code Map<String, Object>} containing additional XDM-formatted data to be sent in
+     *     the personalization query request.
+     * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
+     *     the personalization query request.
+     * @param callback {@code AdobeCallback<Map<DecisionScope, OptimizeProposition>>} which will be
+     *     invoked when decision propositions are received from the Edge network.
+     */
+    public static void updatePropositions(
+            @NonNull final List<DecisionScope> decisionScopes,
+            @Nullable final Map<String, Object> xdm,
+            @Nullable final Map<String, Object> data,
+            @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
+
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
                     "Cannot update propositions, provided list of decision scopes is null or"
                             + " empty.");
+
+            AEPOptimizeError aepOptimizeError = AEPOptimizeError.Companion.getUnexpectedError();
+            failWithOptimizeError(callback, aepOptimizeError);
+
             return;
         }
 
@@ -115,7 +146,60 @@ public class Optimize {
                         .setEventData(eventData)
                         .build();
 
-        MobileCore.dispatchEvent(event);
+        MobileCore.dispatchEventWithResponseCallback(
+                event,
+                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT,
+                new AdobeCallbackWithError<Event>() {
+                    @Override
+                    public void fail(final AdobeError adobeError) {
+                        AEPOptimizeError aepOptimizeError;
+                        if (adobeError == AdobeError.CALLBACK_TIMEOUT) {
+                            aepOptimizeError = AEPOptimizeError.Companion.getTimeoutError();
+                        } else {
+                            aepOptimizeError = AEPOptimizeError.Companion.getUnexpectedError();
+                        }
+                        failWithOptimizeError(callback, aepOptimizeError);
+                    }
+
+                    @Override
+                    public void call(final Event event) {
+                        try {
+                            final Map<String, Object> eventData = event.getEventData();
+                            if (OptimizeUtils.isNullOrEmpty(eventData)) {
+
+                                AEPOptimizeError aepOptimizeError =
+                                        AEPOptimizeError.Companion.getUnexpectedError();
+                                failWithOptimizeError(callback, aepOptimizeError);
+                                return;
+                            }
+
+                            if (eventData.containsKey(
+                                    OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
+                                final Map<DecisionScope, OptimizeProposition> propositionsMap =
+                                        new HashMap<>();
+                                final Map<String, Object> propositionData =
+                                        DataReader.getTypedMap(
+                                                Object.class,
+                                                eventData,
+                                                OptimizeConstants.EventDataKeys.PROPOSITIONS);
+
+                                final OptimizeProposition optimizeProposition =
+                                        OptimizeProposition.fromEventData(propositionData);
+                                if (optimizeProposition != null
+                                        && !OptimizeUtils.isNullOrEmpty(
+                                                optimizeProposition.getScope())) {
+                                    final DecisionScope scope =
+                                            new DecisionScope(optimizeProposition.getScope());
+                                    propositionsMap.put(scope, optimizeProposition);
+                                }
+                                callback.call(propositionsMap);
+                            }
+                        } catch (DataReaderException e) {
+                            failWithOptimizeError(
+                                    callback, AEPOptimizeError.Companion.getUnexpectedError());
+                        }
+                    }
+                });
     }
 
     /**
@@ -321,6 +405,19 @@ public class Optimize {
         final AdobeCallbackWithError<?> callbackWithError =
                 callback instanceof AdobeCallbackWithError
                         ? (AdobeCallbackWithError<?>) callback
+                        : null;
+
+        if (callbackWithError != null) {
+            callbackWithError.fail(error);
+        }
+    }
+
+    protected static void failWithOptimizeError(
+            final AdobeCallback<?> callback, final AEPOptimizeError error) {
+
+        final AdobeCallbackWithOptimizeError<?> callbackWithError =
+                callback instanceof AdobeCallbackWithOptimizeError
+                        ? (AdobeCallbackWithOptimizeError<?>) callback
                         : null;
 
         if (callbackWithError != null) {
