@@ -2466,10 +2466,14 @@ public class OptimizeFunctionalTests {
                         + "  \"payload\": [\n"
                         + "    {\n"
                         + "      \"id\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\n"
-                        + "      \"scope\": \"" + decisionScopeAString + "\"\n"
+                        + "      \"scope\": \""
+                        + decisionScopeAString
+                        + "\"\n"
                         + "    }\n"
                         + "  ],\n"
-                        + "  \"requestEventId\": \"" + requestEventId + "\",\n"
+                        + "  \"requestEventId\": \""
+                        + requestEventId
+                        + "\",\n"
                         + "  \"requestId\": \"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAA\",\n"
                         + "  \"type\": \"personalization:decisions\"\n"
                         + "}";
@@ -2481,9 +2485,9 @@ public class OptimizeFunctionalTests {
 
         Event event =
                 new Event.Builder(
-                        "AEP Response Event Handle",
-                        OptimizeTestConstants.EventType.EDGE,
-                        OptimizeTestConstants.EventSource.PERSONALIZATION)
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
                         .setEventData(eventData)
                         .build();
         MobileCore.dispatchEvent(event);
@@ -2491,14 +2495,16 @@ public class OptimizeFunctionalTests {
 
         // Send completion event
         Map<String, Object> completionEventData =
-                new HashMap<String, Object>() {{
-                    put("completedUpdateRequestForEventId", requestEventId);
-                }};
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", requestEventId);
+                    }
+                };
         Event completionEvent =
                 new Event.Builder(
-                        "Optimize Update Propositions Complete",
-                        OptimizeTestConstants.EventType.OPTIMIZE,
-                        OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
                         .setEventData(completionEventData)
                         .build();
         MobileCore.dispatchEvent(completionEvent);
@@ -2523,10 +2529,14 @@ public class OptimizeFunctionalTests {
                         + "  \"payload\": [\n"
                         + "    {\n"
                         + "      \"id\": \"BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB\",\n"
-                        + "      \"scope\": \"" + decisionScopeBString + "\"\n"
+                        + "      \"scope\": \""
+                        + decisionScopeBString
+                        + "\"\n"
                         + "    }\n"
                         + "  ],\n"
-                        + "  \"requestEventId\": \"" + secondRequestEventId + "\",\n"
+                        + "  \"requestEventId\": \""
+                        + secondRequestEventId
+                        + "\",\n"
                         + "  \"requestId\": \"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb\",\n"
                         + "  \"type\": \"personalization:decisions\"\n"
                         + "}";
@@ -2538,9 +2548,9 @@ public class OptimizeFunctionalTests {
 
         Event secondEvent =
                 new Event.Builder(
-                        "AEP Response Event Handle",
-                        OptimizeTestConstants.EventType.EDGE,
-                        OptimizeTestConstants.EventSource.PERSONALIZATION)
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
                         .setEventData(secondEventData)
                         .build();
         MobileCore.dispatchEvent(secondEvent);
@@ -2548,7 +2558,9 @@ public class OptimizeFunctionalTests {
 
         // Execute get proposition event with both decisionScopeA and decisionScopeB
         Optimize.getPropositions(
-                Arrays.asList(new DecisionScope(decisionScopeAString), new DecisionScope(decisionScopeBString)),
+                Arrays.asList(
+                        new DecisionScope(decisionScopeAString),
+                        new DecisionScope(decisionScopeBString)),
                 new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                     @Override
                     public void fail(AdobeError adobeError) {
@@ -2556,32 +2568,48 @@ public class OptimizeFunctionalTests {
                     }
 
                     @Override
-                    public void call(Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
                         // Assertions
                         // Verify that the proposition for decisionScopeA is present and validate.
-                        Assert.assertTrue(decisionScopePropositionMap.containsKey(new DecisionScope(decisionScopeAString)));
-                        OptimizeProposition optimizePropositionA = decisionScopePropositionMap.get(new DecisionScope(decisionScopeAString));
+                        Assert.assertTrue(
+                                decisionScopePropositionMap.containsKey(
+                                        new DecisionScope(decisionScopeAString)));
+                        OptimizeProposition optimizePropositionA =
+                                decisionScopePropositionMap.get(
+                                        new DecisionScope(decisionScopeAString));
                         Assert.assertNotNull(optimizePropositionA);
-                        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizePropositionA.getId());
+                        Assert.assertEquals(
+                                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                optimizePropositionA.getId());
 
-                        // Verify that the proposition for decisionScopeB is present and validate that the event GET event was queued.
-                        Assert.assertTrue(decisionScopePropositionMap.containsKey(new DecisionScope(decisionScopeBString)));
-                        OptimizeProposition optimizePropositionB = decisionScopePropositionMap.get(new DecisionScope(decisionScopeBString));
+                        // Verify that the proposition for decisionScopeB is present and validate
+                        // that the event GET event was queued.
+                        Assert.assertTrue(
+                                decisionScopePropositionMap.containsKey(
+                                        new DecisionScope(decisionScopeBString)));
+                        OptimizeProposition optimizePropositionB =
+                                decisionScopePropositionMap.get(
+                                        new DecisionScope(decisionScopeBString));
                         Assert.assertNotNull(optimizePropositionB);
-                        Assert.assertEquals("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB", optimizePropositionB.getId());
+                        Assert.assertEquals(
+                                "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
+                                optimizePropositionB.getId());
                     }
                 });
 
         // Send completion for second update event after the Get event is fired
         Map<String, Object> secondCompletionEventData =
-                new HashMap<String, Object>() {{
-                    put("completedUpdateRequestForEventId", secondRequestEventId);
-                }};
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", secondRequestEventId);
+                    }
+                };
         Event secondCompletionEvent =
                 new Event.Builder(
-                        "Optimize Update Propositions Complete",
-                        OptimizeTestConstants.EventType.OPTIMIZE,
-                        OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
                         .setEventData(secondCompletionEventData)
                         .build();
         MobileCore.dispatchEvent(secondCompletionEvent);
