@@ -247,7 +247,7 @@ class OptimizeExtension extends Extension {
                         Log.debug(
                                 OptimizeConstants.LOG_TAG,
                                 SELF_TAG,
-                                "handleGetPropositions - Cannot process the get propositions"
+                                "handleOptimizeRequestContent - Cannot process the get propositions"
                                         + " request event, provided list of decision scopes has no"
                                         + " valid scope.");
                         getApi().dispatch(
@@ -301,7 +301,7 @@ class OptimizeExtension extends Extension {
                     Log.warning(
                             OptimizeConstants.LOG_TAG,
                             SELF_TAG,
-                            "handleUpdatePropositions - Failed to process update propositions"
+                            "handleOptimizeRequestContent - Failed to process get propositions"
                                     + " request event due to an exception (%s)!",
                             e.getLocalizedMessage());
                 }
