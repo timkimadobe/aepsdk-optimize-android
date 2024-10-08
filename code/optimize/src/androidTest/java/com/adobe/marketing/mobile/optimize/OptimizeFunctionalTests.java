@@ -2196,7 +2196,7 @@ public class OptimizeFunctionalTests {
 
     // 19
     @Test
-    public void testGetPropositions_ScopesFromEventIsUpdateInProgress()
+    public void testGetPropositions_multipleUpdatePropositonsCallsBeforeGetPropositions()
             throws InterruptedException, IOException {
         // setup
         final Map<String, Object> configData = new HashMap<>();
