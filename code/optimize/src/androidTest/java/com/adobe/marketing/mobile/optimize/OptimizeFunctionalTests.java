@@ -2194,6 +2194,7 @@ public class OptimizeFunctionalTests {
                 "de03ac85-802a-4331-a905-a57053164d35", decisioning.get("propositionID"));
     }
 
+    // 19
     @Test
     public void testGetPropositions_ScopesFromEventIsUpdateInProgress()
             throws InterruptedException, IOException {
@@ -2301,7 +2302,7 @@ public class OptimizeFunctionalTests {
         // Cache is now updated with a proposition.
         MobileCore.dispatchEvent(completionEvent);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
         TestHelper.resetTestExpectations();
 
         // Firing another update event with same decision scope but different proposition data.
@@ -2437,6 +2438,7 @@ public class OptimizeFunctionalTests {
         MobileCore.dispatchEvent(secondCompletionEvent);
     }
 
+    // 20
     @Test
     public void testGetPropositions_FewDecisionScopesNotInCacheAndGetToBeQueued()
             throws InterruptedException, IOException {
@@ -2595,6 +2597,346 @@ public class OptimizeFunctionalTests {
                         Assert.assertEquals(
                                 "BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB",
                                 optimizePropositionB.getId());
+                    }
+                });
+
+        // Send completion for second update event after the Get event is fired
+        Map<String, Object> secondCompletionEventData =
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", secondRequestEventId);
+                    }
+                };
+        Event secondCompletionEvent =
+                new Event.Builder(
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                        .setEventData(secondCompletionEventData)
+                        .build();
+        MobileCore.dispatchEvent(secondCompletionEvent);
+
+        Thread.sleep(1000);
+        TestHelper.resetTestExpectations();
+    }
+
+    @Test
+    public void testGetPropositions_DispatchPropositionFromCacheBeforeNextUpdate()
+            throws InterruptedException, IOException {
+        // Setup
+        final Map<String, Object> configData = new HashMap<>();
+        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+        updateConfiguration(configData);
+
+        final String decisionScopeAString =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3Rpdml0eUlkIjoic2NvcGUtYSIsInBsYWNlbWVudElkIjoic2NvcGUtYV9wbGFjZW1lbnQifQ.KW1HKVJHTTdmUkJZUmM5UEhNdURtOGdT";
+        final String decisionScopeBString =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3Rpdml0eUlkIjoic2NvcGUtYiIsInBsYWNlbWVudElkIjoic2NvcGUtYl9wbGFjZW1lbnQifQ.QzNxT1dBZ1Z1M0Z5dW84SjdKak1nY2c1";
+
+        // Setting up the cache with decisionScopeA and a proposition.
+        Optimize.updatePropositions(
+                Collections.singletonList(new DecisionScope(decisionScopeAString)), null, null);
+        List<Event> eventsListEdge =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.EDGE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+
+        Event edgeEvent = eventsListEdge.get(0);
+        final String requestEventId = edgeEvent.getUniqueIdentifier();
+        final String edgeResponseData =
+                "{\n"
+                        + "  \"payload\": [\n"
+                        + "    {\n"
+                        + "      \"id\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\n"
+                        + "      \"scope\": \""
+                        + decisionScopeAString
+                        + "\"\n"
+                        + "    }\n"
+                        + "  ],\n"
+                        + "  \"requestEventId\": \""
+                        + requestEventId
+                        + "\",\n"
+                        + "  \"requestId\": \"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAA\",\n"
+                        + "  \"type\": \"personalization:decisions\"\n"
+                        + "}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> eventData =
+                objectMapper.readValue(
+                        edgeResponseData, new TypeReference<Map<String, Object>>() {});
+
+        Event event =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
+                        .setEventData(eventData)
+                        .build();
+        MobileCore.dispatchEvent(event);
+        Thread.sleep(1000);
+
+        // Send completion event
+        Map<String, Object> completionEventData =
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", requestEventId);
+                    }
+                };
+        Event completionEvent =
+                new Event.Builder(
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                        .setEventData(completionEventData)
+                        .build();
+        MobileCore.dispatchEvent(completionEvent);
+
+        Thread.sleep(1000);
+        TestHelper.resetTestExpectations();
+
+        // Create update event with decisionScopeB
+        Optimize.updatePropositions(
+                Collections.singletonList(new DecisionScope(decisionScopeBString)), null, null);
+
+        List<Event> secondEventsListEdge =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.EDGE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+
+        Event secondEdgeEvent = secondEventsListEdge.get(0);
+        final String secondRequestEventId = secondEdgeEvent.getUniqueIdentifier();
+        final String secondEdgeResponseData =
+                "{\n"
+                        + "  \"payload\": [\n"
+                        + "    {\n"
+                        + "      \"id\": \"BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB\",\n"
+                        + "      \"scope\": \""
+                        + decisionScopeBString
+                        + "\"\n"
+                        + "    }\n"
+                        + "  ],\n"
+                        + "  \"requestEventId\": \""
+                        + secondRequestEventId
+                        + "\",\n"
+                        + "  \"requestId\": \"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb\",\n"
+                        + "  \"type\": \"personalization:decisions\"\n"
+                        + "}";
+
+        ObjectMapper secondObjectMapper = new ObjectMapper();
+        Map<String, Object> secondEventData =
+                secondObjectMapper.readValue(
+                        secondEdgeResponseData, new TypeReference<Map<String, Object>>() {});
+
+        Event secondEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
+                        .setEventData(secondEventData)
+                        .build();
+        MobileCore.dispatchEvent(secondEvent);
+        Thread.sleep(1000);
+
+        // Execute get proposition event with decisionScopeA before the update event is completed.
+        DecisionScope decisionScopeA = new DecisionScope(decisionScopeAString);
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
+
+        Optimize.getPropositions(
+                Collections.singletonList(decisionScopeA),
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
+                    @Override
+                    public void fail(AdobeError adobeError) {
+                        Assert.fail("Error in getting cached propositions");
+                    }
+
+                    @Override
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
+                        propositionMap.putAll(decisionScopePropositionMap);
+
+                        // Assertions
+                        // Verify that the proposition for decisionScopeA is dispatched from cache
+                        // before the update completes.
+                        Assert.assertTrue(propositionMap.containsKey(decisionScopeA));
+                        OptimizeProposition optimizePropositionA =
+                                propositionMap.get(decisionScopeA);
+                        Assert.assertNotNull(optimizePropositionA);
+                        Assert.assertEquals(
+                                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                optimizePropositionA.getId());
+                        Assert.assertEquals(decisionScopeAString, optimizePropositionA.getScope());
+                    }
+                });
+
+        // Send completion for second update event after the Get event is fired
+        Map<String, Object> secondCompletionEventData =
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", secondRequestEventId);
+                    }
+                };
+        Event secondCompletionEvent =
+                new Event.Builder(
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                        .setEventData(secondCompletionEventData)
+                        .build();
+        MobileCore.dispatchEvent(secondCompletionEvent);
+
+        Thread.sleep(1000);
+        TestHelper.resetTestExpectations();
+    }
+
+    @Test
+    public void testGetPropositions_DispatchPropositionFrosmCacheBeforeNextUpdate()
+            throws InterruptedException, IOException {
+        // Setup
+        final Map<String, Object> configData = new HashMap<>();
+        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+        updateConfiguration(configData);
+
+        final String decisionScopeAString =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3Rpdml0eUlkIjoic2NvcGUtYSIsInBsYWNlbWVudElkIjoic2NvcGUtYV9wbGFjZW1lbnQifQ.KW1HKVJHTTdmUkJZUmM5UEhNdURtOGdT";
+        final String decisionScopeBString =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3Rpdml0eUlkIjoic2NvcGUtYiIsInBsYWNlbWVudElkIjoic2NvcGUtYl9wbGFjZW1lbnQifQ.QzNxT1dBZ1Z1M0Z5dW84SjdKak1nY2c1";
+
+        // Setting up the cache with decisionScopeA and a proposition.
+        Optimize.updatePropositions(
+                Collections.singletonList(new DecisionScope(decisionScopeAString)), null, null);
+        List<Event> eventsListEdge =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.EDGE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+
+        Event edgeEvent = eventsListEdge.get(0);
+        final String requestEventId = edgeEvent.getUniqueIdentifier();
+        final String edgeResponseData =
+                "{\n"
+                        + "  \"payload\": [\n"
+                        + "    {\n"
+                        + "      \"id\": \"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa\",\n"
+                        + "      \"scope\": \""
+                        + decisionScopeAString
+                        + "\"\n"
+                        + "    }\n"
+                        + "  ],\n"
+                        + "  \"requestEventId\": \""
+                        + requestEventId
+                        + "\",\n"
+                        + "  \"requestId\": \"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAA\",\n"
+                        + "  \"type\": \"personalization:decisions\"\n"
+                        + "}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> eventData =
+                objectMapper.readValue(
+                        edgeResponseData, new TypeReference<Map<String, Object>>() {});
+
+        Event event =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
+                        .setEventData(eventData)
+                        .build();
+        MobileCore.dispatchEvent(event);
+        Thread.sleep(1000);
+
+        // Send completion event
+        Map<String, Object> completionEventData =
+                new HashMap<String, Object>() {
+                    {
+                        put("completedUpdateRequestForEventId", requestEventId);
+                    }
+                };
+        Event completionEvent =
+                new Event.Builder(
+                                "Optimize Update Propositions Complete",
+                                OptimizeTestConstants.EventType.OPTIMIZE,
+                                OptimizeTestConstants.EventSource.CONTENT_COMPLETE)
+                        .setEventData(completionEventData)
+                        .build();
+        MobileCore.dispatchEvent(completionEvent);
+
+        Thread.sleep(1000);
+        TestHelper.resetTestExpectations();
+
+        // Create update event with decisionScopeB
+        Optimize.updatePropositions(
+                Collections.singletonList(new DecisionScope(decisionScopeBString)), null, null);
+
+        List<Event> secondEventsListEdge =
+                TestHelper.getDispatchedEventsWith(
+                        OptimizeTestConstants.EventType.EDGE,
+                        OptimizeTestConstants.EventSource.REQUEST_CONTENT,
+                        1000);
+
+        Event secondEdgeEvent = secondEventsListEdge.get(0);
+        final String secondRequestEventId = secondEdgeEvent.getUniqueIdentifier();
+        final String secondEdgeResponseData =
+                "{\n"
+                        + "  \"payload\": [\n"
+                        + "    {\n"
+                        + "      \"id\": \"BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB\",\n"
+                        + "      \"scope\": \""
+                        + decisionScopeBString
+                        + "\"\n"
+                        + "    }\n"
+                        + "  ],\n"
+                        + "  \"requestEventId\": \""
+                        + secondRequestEventId
+                        + "\",\n"
+                        + "  \"requestId\": \"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb\",\n"
+                        + "  \"type\": \"personalization:decisions\"\n"
+                        + "}";
+
+        ObjectMapper secondObjectMapper = new ObjectMapper();
+        Map<String, Object> secondEventData =
+                secondObjectMapper.readValue(
+                        secondEdgeResponseData, new TypeReference<Map<String, Object>>() {});
+
+        Event secondEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle",
+                                OptimizeTestConstants.EventType.EDGE,
+                                OptimizeTestConstants.EventSource.PERSONALIZATION)
+                        .setEventData(secondEventData)
+                        .build();
+        MobileCore.dispatchEvent(secondEvent);
+        Thread.sleep(1000);
+
+        // Execute get proposition event with decisionScopeA before the update event is completed.
+        DecisionScope decisionScopeA = new DecisionScope(decisionScopeAString);
+        final Map<DecisionScope, OptimizeProposition> propositionMap = new HashMap<>();
+
+        Optimize.getPropositions(
+                Collections.singletonList(decisionScopeA),
+                new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
+                    @Override
+                    public void fail(AdobeError adobeError) {
+                        Assert.fail("Error in getting cached propositions");
+                    }
+
+                    @Override
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
+                        propositionMap.putAll(decisionScopePropositionMap);
+
+                        // Assertions
+                        // Verify that the proposition for decisionScopeA is dispatched from cache
+                        // before the update completes.
+                        Assert.assertTrue(propositionMap.containsKey(decisionScopeA));
+                        OptimizeProposition optimizePropositionA =
+                                propositionMap.get(decisionScopeA);
+                        Assert.assertNotNull(optimizePropositionA);
+                        Assert.assertEquals(
+                                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                                optimizePropositionA.getId());
+                        Assert.assertEquals(decisionScopeAString, optimizePropositionA.getScope());
                     }
                 });
 
