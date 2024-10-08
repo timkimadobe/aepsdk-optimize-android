@@ -76,6 +76,39 @@ public class OptimizeFunctionalTests {
         Assert.assertEquals(OptimizeTestConstants.EXTENSION_VERSION, Optimize.extensionVersion());
     }
 
+    @Test
+    public void testUpdatePropositions_timeoutError() throws Exception {
+        // Setup
+        final String decisionScopeName = "decisionScope";
+        Map<String, Object> configData = new HashMap<>();
+        configData.put("edge.configId", "ffffffff-ffff-ffff-ffff-ffffffffffff");
+        updateConfiguration(configData);
+
+        // Action
+        Optimize.updatePropositions(
+                Collections.singletonList(new DecisionScope(decisionScopeName)),
+                null,
+                null,
+                new AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>() {
+                    @Override
+                    public void fail(AEPOptimizeError error) {
+                        Assert.fail(OptimizeConstants.ErrorData.Timeout.DETAIL);
+                        Assert.assertEquals(
+                                OptimizeConstants.ErrorData.Timeout.STATUS, error.getStatus());
+                        Assert.assertEquals(
+                                OptimizeConstants.ErrorData.Timeout.TITLE, error.getTitle());
+                        Assert.assertEquals(
+                                OptimizeConstants.ErrorData.Timeout.DETAIL, error.getDetail());
+                    }
+
+                    @Override
+                    public void call(
+                            Map<DecisionScope, OptimizeProposition> decisionScopePropositionMap) {
+                        Assert.assertNull(decisionScopePropositionMap);
+                    }
+                });
+    }
+
     // 2a
     @Test
     public void testUpdatePropositions_validDecisionScope() throws InterruptedException {
@@ -819,8 +852,11 @@ public class OptimizeFunctionalTests {
                         OptimizeTestConstants.EventSource.RESPONSE_CONTENT);
 
         Assert.assertNotNull(optimizeResponseEventsList);
-        Assert.assertEquals(1, optimizeResponseEventsList.size());
-        Assert.assertNull(optimizeResponseEventsList.get(0).getEventData().get("responseerror"));
+
+        // 1 additional event is being sent from handleUpdatePropositions() to provide callback for
+        // updatePropositons()
+        Assert.assertEquals(2, optimizeResponseEventsList.size());
+
         Assert.assertEquals(1, propositionMap.size());
         OptimizeProposition optimizeProposition = propositionMap.get(decisionScope);
         Assert.assertNotNull(optimizeProposition);
@@ -1208,6 +1244,7 @@ public class OptimizeFunctionalTests {
                         OptimizeTestConstants.EventSource.RESPONSE_CONTENT);
 
         Assert.assertNotNull(optimizeResponseEventsList);
+
         Assert.assertEquals(1, optimizeResponseEventsList.size());
         Assert.assertNull(optimizeResponseEventsList.get(0).getEventData().get("responseerror"));
         Assert.assertEquals(1, propositionMap.size());
