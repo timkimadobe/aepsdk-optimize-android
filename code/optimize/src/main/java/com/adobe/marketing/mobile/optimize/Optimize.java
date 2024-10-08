@@ -174,24 +174,46 @@ public class Optimize {
                             }
 
                             if (eventData.containsKey(
-                                    OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
-                                final Map<DecisionScope, OptimizeProposition> propositionsMap =
-                                        new HashMap<>();
-                                final Map<String, Object> propositionData =
-                                        DataReader.getTypedMap(
-                                                Object.class,
-                                                eventData,
-                                                OptimizeConstants.EventDataKeys.PROPOSITIONS);
-
-                                final OptimizeProposition optimizeProposition =
-                                        OptimizeProposition.fromEventData(propositionData);
-                                if (optimizeProposition != null
-                                        && !OptimizeUtils.isNullOrEmpty(
-                                                optimizeProposition.getScope())) {
-                                    final DecisionScope scope =
-                                            new DecisionScope(optimizeProposition.getScope());
-                                    propositionsMap.put(scope, optimizeProposition);
+                                    OptimizeConstants.EventDataKeys.RESPONSE_ERROR)) {
+                                Object error =
+                                        eventData.get(
+                                                OptimizeConstants.EventDataKeys.RESPONSE_ERROR);
+                                if (error instanceof Map) {
+                                    failWithOptimizeError(
+                                            callback,
+                                            AEPOptimizeError.toAEPOptimizeError(
+                                                    (Map<String, ? extends Object>) error));
                                 }
+                            }
+
+                            if (!eventData.containsKey(
+                                    OptimizeConstants.EventDataKeys.PROPOSITIONS)) {
+                                return;
+                            }
+
+                            final List<Map<String, Object>> propositionsList;
+                            propositionsList =
+                                    DataReader.getTypedListOfMap(
+                                            Object.class,
+                                            eventData,
+                                            OptimizeConstants.EventDataKeys.PROPOSITIONS);
+                            final Map<DecisionScope, OptimizeProposition> propositionsMap =
+                                    new HashMap<>();
+                            if (propositionsList != null) {
+                                for (final Map<String, Object> propositionData : propositionsList) {
+                                    final OptimizeProposition optimizeProposition =
+                                            OptimizeProposition.fromEventData(propositionData);
+                                    if (optimizeProposition != null
+                                            && !OptimizeUtils.isNullOrEmpty(
+                                                    optimizeProposition.getScope())) {
+                                        final DecisionScope scope =
+                                                new DecisionScope(optimizeProposition.getScope());
+                                        propositionsMap.put(scope, optimizeProposition);
+                                    }
+                                }
+                            }
+
+                            if (callback != null) {
                                 callback.call(propositionsMap);
                             }
                         } catch (DataReaderException e) {

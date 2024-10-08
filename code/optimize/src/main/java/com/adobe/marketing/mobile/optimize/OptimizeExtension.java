@@ -93,6 +93,19 @@ class OptimizeExtension extends Extension {
                     OptimizeConstants.JsonValues.SCHEMA_OFFER_IMAGE,
                     OptimizeConstants.JsonValues.SCHEMA_OFFER_TEXT);
 
+    // List containing recoverable network error codes being retried by Edge Network Service
+    private static final List<Integer> recoverableNetworkErrorCodes =
+            Arrays.asList(
+                    OptimizeConstants.HTTPResponseCodes.clientTimeout,
+                    OptimizeConstants.HTTPResponseCodes.tooManyRequests,
+                    OptimizeConstants.HTTPResponseCodes.badGateway,
+                    OptimizeConstants.HTTPResponseCodes.serviceUnavailable,
+                    OptimizeConstants.HTTPResponseCodes.gatewayTimeout);
+
+    // Map containing the update event IDs and corresponding errors as received from Edge SDK
+    private static final Map<String, AEPOptimizeError> updateRequestEventIdsErrors =
+            new ConcurrentHashMap<>();
+
     /**
      * Constructor for {@code OptimizeExtension}.
      *
@@ -403,9 +416,24 @@ class OptimizeExtension extends Extension {
                             }
 
                             final Map<String, Object> responseEventData = new HashMap<>();
+                            AEPOptimizeError aepOptimizeError =
+                                    updateRequestEventIdsErrors.get(requestEventId);
+                            if (aepOptimizeError != null) {
+                                responseEventData.put(
+                                        OptimizeConstants.EventDataKeys.RESPONSE_ERROR,
+                                        aepOptimizeError.toEventData());
+                            }
+
+                            final List<Map<String, Object>> propositionsList = new ArrayList<>();
+
+                            for (Map.Entry<DecisionScope, OptimizeProposition> entry :
+                                    propositionsInProgress.entrySet()) {
+                                OptimizeProposition optimizeProposition = entry.getValue();
+                                propositionsList.add(optimizeProposition.toEventData());
+                            }
+
                             responseEventData.put(
-                                    OptimizeConstants.EventDataKeys.PROPOSITIONS,
-                                    propositionsInProgress);
+                                    OptimizeConstants.EventDataKeys.PROPOSITIONS, propositionsList);
 
                             final Event responseEvent =
                                     new Event.Builder(
@@ -628,34 +656,94 @@ class OptimizeExtension extends Extension {
      * @param event incoming {@link Event} object to be processed.
      */
     void handleEdgeErrorResponse(@NonNull final Event event) {
-        if (OptimizeUtils.isNullOrEmpty(event.getEventData())) {
-            Log.debug(
+        try {
+            final Map<String, Object> eventData = event.getEventData();
+            final String requestEventId = OptimizeUtils.getRequestEventId(event);
+
+            if (!OptimizeUtils.isEdgeErrorResponseContent(event)
+                    || OptimizeUtils.isNullOrEmpty(requestEventId)
+                    || !updateRequestEventIdsInProgress.containsKey(requestEventId)) {
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "handleEdgeResponse - Ignoring Edge event, either handle type is not edge"
+                                + " error response content, or the response isn't intended for this"
+                                + " extension.");
+                return;
+            }
+
+            if (OptimizeUtils.isNullOrEmpty(event.getEventData())) {
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "handleEdgeErrorResponse - Ignoring the Edge error response event, either"
+                                + " event is null or event data is null/ empty.");
+                return;
+            }
+
+            final String errorType =
+                    DataReader.optString(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.TYPE,
+                            OptimizeConstants.ERROR_UNKNOWN);
+            final int errorStatus =
+                    DataReader.optInt(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.STATUS,
+                            OptimizeConstants.UNKNOWN_STATUS);
+            final String errorTitle =
+                    DataReader.optString(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.TITLE,
+                            OptimizeConstants.ERROR_UNKNOWN);
+            final String errorDetail =
+                    DataReader.optString(
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.DETAIL,
+                            OptimizeConstants.ERROR_UNKNOWN);
+            final Map<String, Object> errorReport =
+                    DataReader.optTypedMap(
+                            Object.class,
+                            eventData,
+                            OptimizeConstants.Edge.ErrorKeys.REPORT,
+                            new HashMap<>());
+
+            Log.warning(
                     OptimizeConstants.LOG_TAG,
                     SELF_TAG,
-                    "handleEdgeErrorResponse - Ignoring the Edge error response event, either event"
-                            + " is null or event data is null/ empty.");
-            return;
+                    "handleEdgeErrorResponse - Decisioning Service error! Error type: (%s),\n"
+                            + "title: (%s),\n"
+                            + "detail: (%s),\n"
+                            + "status: (%s),\n"
+                            + "report: (%s)",
+                    errorType,
+                    errorTitle,
+                    errorDetail,
+                    errorStatus,
+                    errorReport);
+
+            // Check if the errorStatus is in the list of recoverable error codes
+            if (recoverableNetworkErrorCodes.contains(errorStatus)) {
+                Log.debug(
+                        OptimizeConstants.LOG_TAG,
+                        SELF_TAG,
+                        "Recoverable error encountered: Status %d",
+                        errorStatus);
+                return;
+            } else {
+                AEPOptimizeError aepOptimizeError =
+                        new AEPOptimizeError(
+                                errorType, errorStatus, errorTitle, errorDetail, errorReport, null);
+                updateRequestEventIdsErrors.put(requestEventId, aepOptimizeError);
+            }
+        } catch (final Exception e) {
+            Log.warning(
+                    OptimizeConstants.LOG_TAG,
+                    SELF_TAG,
+                    "handleEdgeResponse - Cannot process the Edge Error Response event"
+                            + " due to an exception (%s)!",
+                    e.getLocalizedMessage());
         }
-        final Map<String, Object> eventData = event.getEventData();
-
-        final String errorType =
-                DataReader.optString(
-                        eventData,
-                        OptimizeConstants.Edge.ErrorKeys.TYPE,
-                        OptimizeConstants.ERROR_UNKNOWN);
-        final String errorDetail =
-                DataReader.optString(
-                        eventData,
-                        OptimizeConstants.Edge.ErrorKeys.DETAIL,
-                        OptimizeConstants.ERROR_UNKNOWN);
-
-        Log.warning(
-                OptimizeConstants.LOG_TAG,
-                SELF_TAG,
-                "handleEdgeErrorResponse - Decisioning Service error! Error type: (%s), detail:"
-                        + " (%s)",
-                errorType,
-                errorDetail);
     }
 
     /**
