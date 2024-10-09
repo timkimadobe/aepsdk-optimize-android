@@ -2412,7 +2412,7 @@ public class OptimizeExtensionTests {
 
             final Event testEvent =
                     new Event.Builder(
-                                    "Optimize Update Propositions Request",
+                                    "Optimize Get Propositions Request",
                                     "com.adobe.eventType.optimize",
                                     "com.adobe.eventSource.requestContent")
                             .setEventData(testEventData)
