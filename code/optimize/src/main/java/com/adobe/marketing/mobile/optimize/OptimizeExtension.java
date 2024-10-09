@@ -29,6 +29,7 @@ import com.adobe.marketing.mobile.util.SerialWorkDispatcher;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -245,10 +246,78 @@ class OptimizeExtension extends Extension {
                 handleUpdatePropositions(event);
                 break;
             case OptimizeConstants.EventDataValues.REQUEST_TYPE_GET:
-                // Queue the get propositions event in the events dispatcher to ensure any prior
-                // update requests are completed
-                // before it is processed.
-                eventsDispatcher.offer(event);
+                try {
+                    // Fetch decision scopes from the event
+                    List<Map<String, Object>> decisionScopesData =
+                            DataReader.getTypedListOfMap(
+                                    Object.class,
+                                    eventData,
+                                    OptimizeConstants.EventDataKeys.DECISION_SCOPES);
+                    List<DecisionScope> eventDecisionScopes =
+                            retrieveValidDecisionScopes(decisionScopesData);
+
+                    if (OptimizeUtils.isNullOrEmpty(eventDecisionScopes)) {
+                        Log.debug(
+                                OptimizeConstants.LOG_TAG,
+                                SELF_TAG,
+                                "handleOptimizeRequestContent - Cannot process the get propositions"
+                                        + " request event, provided list of decision scopes has no"
+                                        + " valid scope.");
+                        getApi().dispatch(
+                                        createResponseEventWithError(
+                                                event, AdobeError.UNEXPECTED_ERROR));
+                        return;
+                    }
+
+                    // Fetch propositions for the decision scopes from the cache
+                    Map<DecisionScope, OptimizeProposition> fetchedPropositions = new HashMap<>();
+                    for (DecisionScope scope : eventDecisionScopes) {
+                        if (cachedPropositions.containsKey(scope)) {
+                            fetchedPropositions.put(scope, cachedPropositions.get(scope));
+                        }
+                    }
+
+                    // Check if all scopes are cached and none are in progress
+                    boolean anyScopeInProgress = false;
+                    HashSet<DecisionScope> scopesInProgress = new HashSet<>();
+                    for (List<DecisionScope> updatingScope :
+                            updateRequestEventIdsInProgress.values()) {
+                        scopesInProgress.addAll(updatingScope);
+                    }
+                    for (DecisionScope scope : eventDecisionScopes) {
+                        if (scopesInProgress.contains(scope)) {
+                            anyScopeInProgress = true;
+                            break;
+                        }
+                    }
+
+                    if ((fetchedPropositions.size() == eventDecisionScopes.size())
+                            && !anyScopeInProgress) {
+                        Log.trace(
+                                OptimizeConstants.LOG_TAG,
+                                SELF_TAG,
+                                "handleOptimizeRequestContent - All scopes are cached and none are"
+                                        + " in progress, dispatching event directly.");
+
+                        // Dispatch the event directly
+                        handleGetPropositions(event);
+                    } else {
+                        Log.trace(
+                                OptimizeConstants.LOG_TAG,
+                                SELF_TAG,
+                                "handleOptimizeRequestContent - Scopes are not fully cached or are"
+                                        + " in progress, adding event to dispatcher.");
+                        eventsDispatcher.offer(event);
+                    }
+                    break;
+                } catch (final Exception e) {
+                    Log.warning(
+                            OptimizeConstants.LOG_TAG,
+                            SELF_TAG,
+                            "handleOptimizeRequestContent - Failed to process get propositions"
+                                    + " request event due to an exception (%s)!",
+                            e.getLocalizedMessage());
+                }
                 break;
             case OptimizeConstants.EventDataValues.REQUEST_TYPE_TRACK:
                 handleTrackPropositions(event);
