@@ -107,8 +107,8 @@ public class Optimize {
      *     the personalization query request.
      * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
      *     the personalization query request.
-     * @param timeoutMillis {@code Long} containing additional configurable timeout to be sent in the
-     *     personalization query request.
+     * @param timeoutMillis {@code Long} containing additional configurable timeout to be sent in
+     *     the personalization query request.
      * @param callback {@code AdobeCallback<Map<DecisionScope, OptimizeProposition>>} which will be
      *     invoked when decision propositions are received from the Edge network.
      */
