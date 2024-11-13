@@ -199,6 +199,7 @@ public class Optimize {
         if (!OptimizeUtils.isNullOrEmpty(data)) {
             eventData.put(OptimizeConstants.EventDataKeys.DATA, data);
         }
+        eventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, timeoutMillis);
 
         final Event event =
                 new Event.Builder(
