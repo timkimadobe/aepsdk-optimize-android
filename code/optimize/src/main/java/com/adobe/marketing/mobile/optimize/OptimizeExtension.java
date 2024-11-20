@@ -449,10 +449,11 @@ class OptimizeExtension extends Extension {
 
             // add the Edge event to update propositions in the events queue.
             eventsDispatcher.offer(edgeEvent);
-
+            long timeoutMillis =
+                    DataReader.getLong(eventData, OptimizeConstants.EventDataKeys.TIMEOUT);
             MobileCore.dispatchEventWithResponseCallback(
                     edgeEvent,
-                    OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT,
+                    timeoutMillis,
                     new AdobeCallbackWithError<Event>() {
                         @Override
                         public void fail(final AdobeError error) {

@@ -49,7 +49,7 @@ public class Optimize {
      * Experience Edge network.
      *
      * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
-     * can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
+     * can be retrieved using {@link #getPropositions(List, long, AdobeCallback)} API.
      *
      * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
      *     be updated.
@@ -62,8 +62,8 @@ public class Optimize {
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data) {
-
-        updatePropositions(decisionScopes, xdm, data, null);
+        final long defaultTimeout = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
+        updatePropositions(decisionScopes, xdm, data, defaultTimeout, null);
     }
 
     /**
@@ -87,6 +87,44 @@ public class Optimize {
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
+            @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
+        final long defaultTimeout = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
+        updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeout, callback);
+    }
+
+    /**
+     * This API dispatches an Event for the Edge network extension to fetch decision propositions,
+     * for the provided decision scopes list, from the decisioning services enabled in the
+     * Experience Edge network.
+     *
+     * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
+     * can be retrieved using {@link #getPropositions(List, long, AdobeCallback)} API.
+     *
+     * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
+     *     be updated.
+     * @param xdm {@code Map<String, Object>} containing additional XDM-formatted data to be sent in
+     *     the personalization query request.
+     * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
+     *     the personalization query request.
+     * @param timeoutMillis {@code Long} containing additional configurable timeout to be sent in
+     *     the personalization query request.
+     * @param callback {@code AdobeCallback<Map<DecisionScope, OptimizeProposition>>} which will be
+     *     invoked when decision propositions are received from the Edge network.
+     */
+    public static void updatePropositions(
+            @NonNull final List<DecisionScope> decisionScopes,
+            @Nullable final Map<String, Object> xdm,
+            @Nullable final Map<String, Object> data,
+            final long timeoutMillis,
+            @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
+        updatePropositionsInternal(decisionScopes, xdm, data, timeoutMillis, callback);
+    }
+
+    private static void updatePropositionsInternal(
+            @NonNull final List<DecisionScope> decisionScopes,
+            @Nullable final Map<String, Object> xdm,
+            @Nullable final Map<String, Object> data,
+            final long timeoutMillis,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
 
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
@@ -137,6 +175,7 @@ public class Optimize {
         if (!OptimizeUtils.isNullOrEmpty(data)) {
             eventData.put(OptimizeConstants.EventDataKeys.DATA, data);
         }
+        eventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, timeoutMillis);
 
         final Event event =
                 new Event.Builder(
@@ -148,7 +187,7 @@ public class Optimize {
 
         MobileCore.dispatchEventWithResponseCallback(
                 event,
-                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT,
+                timeoutMillis,
                 new AdobeCallbackWithError<Event>() {
                     @Override
                     public void fail(final AdobeError adobeError) {
@@ -236,6 +275,30 @@ public class Optimize {
     public static void getPropositions(
             @NonNull final List<DecisionScope> decisionScopes,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
+        long defaultTimeout = OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT;
+        getPropositionsInternal(decisionScopes, defaultTimeout, callback);
+    }
+
+    /**
+     * This API retrieves the previously fetched propositions, for the provided decision scopes,
+     * from the in-memory extension propositions cache.
+     *
+     * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
+     *     be requested.
+     * @param callback {@code AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>} which
+     *     will be invoked when decision propositions are retrieved from the local cache.
+     */
+    public static void getPropositions(
+            @NonNull final List<DecisionScope> decisionScopes,
+            final long timeoutMillis,
+            @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
+        getPropositionsInternal(decisionScopes, timeoutMillis, callback);
+    }
+
+    private static void getPropositionsInternal(
+            @NonNull final List<DecisionScope> decisionScopes,
+            final long timeoutMillis,
+            @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             Log.warning(
                     OptimizeConstants.LOG_TAG,
@@ -286,7 +349,7 @@ public class Optimize {
         // requests have enough time to complete.
         MobileCore.dispatchEventWithResponseCallback(
                 event,
-                OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT,
+                timeoutMillis,
                 new AdobeCallbackWithError<Event>() {
                     @Override
                     public void fail(final AdobeError adobeError) {
