@@ -10,10 +10,6 @@
 */
 
 package com.adobe.marketing.mobile.optimize;
-
-import static com.adobe.marketing.mobile.optimize.Optimize.failWithOptimizeError;
-import static com.adobe.marketing.mobile.optimize.Optimize.getPropositions;
-import static com.adobe.marketing.mobile.optimize.Optimize.updatePropositions;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -460,7 +456,7 @@ public class OptimizeTests {
                     new DecisionScope(
                             "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
 
-            getPropositions(
+            Optimize.getPropositions(
                     scopes,
                     new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
@@ -567,7 +563,7 @@ public class OptimizeTests {
                             "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ=="));
             scopes.add(new DecisionScope("myMbox"));
 
-            getPropositions(
+            Optimize.getPropositions(
                     scopes,
                     new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
@@ -637,7 +633,7 @@ public class OptimizeTests {
                     new DecisionScope(
                             "eyJhY3Rpdml0eUlkIjoiIiwicGxhY2VtZW50SWQiOiJ4Y29yZTpvZmZlci1wbGFjZW1lbnQ6MTExMTExMTExMTExMTExMSJ9"));
 
-            getPropositions(
+            Optimize.getPropositions(
                     scopes,
                     new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
@@ -666,7 +662,7 @@ public class OptimizeTests {
     public void testGetPropositions_emptyDecisionScopesList() {
         try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
             // test
-            getPropositions(
+            Optimize.getPropositions(
                     new ArrayList<DecisionScope>(),
                     new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
@@ -695,7 +691,7 @@ public class OptimizeTests {
     public void testGetPropositions_nullDecisionScopesList() {
         try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
             // test
-            getPropositions(
+            Optimize.getPropositions(
                     null,
                     new AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>() {
                         @Override
@@ -906,7 +902,7 @@ public class OptimizeTests {
     @Test
     public void testUpdatePropositions_timeoutError() {
 
-        long timeoutMillis = 100;
+        double timeoutSeconds = 0.1;
         Map<String, Object> xdm = new HashMap<>();
         Map<String, Object> data = new HashMap<>();
         final List<DecisionScope> scopes = new ArrayList<>();
@@ -947,13 +943,13 @@ public class OptimizeTests {
                     .thenAnswer(
                             (Answer<Void>)
                                     invocation -> {
-                                        failWithOptimizeError(
+                                        Optimize.failWithOptimizeError(
                                                 callbackMockEvent,
                                                 AEPOptimizeError.Companion.getTimeoutError());
                                         return null;
                                     });
 
-            updatePropositions(scopes, xdm, data, timeoutMillis, callbackMock);
+            Optimize.updatePropositions(scopes, xdm, data, timeoutSeconds, callbackMock);
             ArgumentCaptor<AEPOptimizeError> errorCaptor =
                     ArgumentCaptor.forClass(AEPOptimizeError.class);
             verify(callbackMockEvent, times(1)).fail(errorCaptor.capture());
@@ -965,7 +961,7 @@ public class OptimizeTests {
     @Test
     public void testGetPropositions_timeoutError() {
 
-        long timeoutMillis = 100;
+        double timeoutSeconds = 0.1;
         final List<DecisionScope> scopes = new ArrayList<>();
         scopes.add(
                 new DecisionScope(
@@ -1004,13 +1000,13 @@ public class OptimizeTests {
                     .thenAnswer(
                             (Answer<Void>)
                                     invocation -> {
-                                        failWithOptimizeError(
+                                        Optimize.failWithOptimizeError(
                                                 callbackMockEvent,
                                                 AEPOptimizeError.Companion.getTimeoutError());
                                         return null;
                                     });
 
-            getPropositions(scopes, timeoutMillis, callbackMock);
+            Optimize.getPropositions(scopes, timeoutSeconds, callbackMock);
             ArgumentCaptor<AEPOptimizeError> errorCaptor =
                     ArgumentCaptor.forClass(AEPOptimizeError.class);
             verify(callbackMockEvent, times(1)).fail(errorCaptor.capture());
