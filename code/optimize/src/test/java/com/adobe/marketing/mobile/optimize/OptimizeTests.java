@@ -10,6 +10,7 @@
 */
 
 package com.adobe.marketing.mobile.optimize;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 

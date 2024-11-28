@@ -89,7 +89,8 @@ public class Optimize {
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        final double defaultTimeoutSeconds = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
+        final double defaultTimeoutSeconds =
+                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
         updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeoutSeconds, callback);
     }
 
@@ -177,7 +178,8 @@ public class Optimize {
             eventData.put(OptimizeConstants.EventDataKeys.DATA, data);
         }
 
-        long timeoutMillis = (long) (timeoutSeconds * 1000);
+        long timeoutMillis = (long) (timeoutSeconds * OptimizeConstants.TIMEOUT_CONVERSION_FACTOR);
+
         eventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, timeoutMillis);
 
         final Event event =
@@ -348,7 +350,7 @@ public class Optimize {
                         .setEventData(eventData)
                         .build();
 
-        long timeoutMillis = (long) (timeoutSeconds * 1000);
+        long timeoutMillis = (long) (timeoutSeconds * OptimizeConstants.TIMEOUT_CONVERSION_FACTOR);
 
         MobileCore.dispatchEventWithResponseCallback(
                 event,
