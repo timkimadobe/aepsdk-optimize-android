@@ -58,12 +58,13 @@ public class Optimize {
      * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
      *     the personalization query request.
      */
+    @Deprecated
     public static void updatePropositions(
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data) {
-        final long defaultTimeout = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
-        updatePropositions(decisionScopes, xdm, data, defaultTimeout, null);
+
+        updatePropositions(decisionScopes, xdm, data, null);
     }
 
     /**
