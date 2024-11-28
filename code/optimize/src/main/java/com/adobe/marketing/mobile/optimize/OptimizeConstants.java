@@ -16,8 +16,7 @@ class OptimizeConstants {
     static final String EXTENSION_VERSION = "3.2.0";
     static final String EXTENSION_NAME = "com.adobe.optimize";
     static final String FRIENDLY_NAME = "Optimize";
-    static final long DEFAULT_RESPONSE_CALLBACK_TIMEOUT = 500L;
-    static final long GET_RESPONSE_CALLBACK_TIMEOUT = 10000L;
+    static final double GET_RESPONSE_CALLBACK_TIMEOUT = 10;
     static final double EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT = 10;
 
     static final String ACTIVITY_ID = "activityId";

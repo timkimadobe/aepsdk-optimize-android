@@ -203,7 +203,7 @@ fun OffersView(viewModel: MainViewModel) {
 
                     viewModel.getPropositions(
                         decisionScopes = decisionScopeList,
-                        timeout = 200
+                        timeoutSeconds = 0.2
                     )
                 }) {
                     Text(

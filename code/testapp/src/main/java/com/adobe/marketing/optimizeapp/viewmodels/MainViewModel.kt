@@ -71,9 +71,9 @@ class MainViewModel: ViewModel() {
      * Calls the Optimize SDK API to get the Propositions see [Optimize.getPropositions]
      *
      * @param [decisionScopes] a [List] of [DecisionScope]
-     * @param [timeout] a [Long] in milliseconds
+     * @param [timeoutSeconds] a [Double] in seconds
      */
-    fun getPropositions(decisionScopes: List<DecisionScope>, timeout: Long? = null) {
+    fun getPropositions(decisionScopes: List<DecisionScope>, timeoutSeconds: Double? = null) {
         optimizePropositionStateMap.clear()
         val callback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
@@ -86,8 +86,8 @@ class MainViewModel: ViewModel() {
                 print("Error in getting Propositions.")
             }
         }
-        timeout?.let { milliseconds ->
-            Optimize.getPropositions(decisionScopes, milliseconds, callback)
+        timeoutSeconds?.let { seconds ->
+            Optimize.getPropositions(decisionScopes, seconds, callback)
         } ?: Optimize.getPropositions(decisionScopes, callback)
     }
 
