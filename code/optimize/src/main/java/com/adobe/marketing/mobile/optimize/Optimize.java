@@ -89,8 +89,8 @@ public class Optimize {
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        final long defaultTimeout = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
-        updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeout, callback);
+        final double defaultTimeoutSeconds = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
+        updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeoutSeconds, callback);
     }
 
     /**
@@ -107,8 +107,8 @@ public class Optimize {
      *     the personalization query request.
      * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
      *     the personalization query request.
-     * @param timeoutMillis {@code Long} containing additional configurable timeout to be sent in
-     *     the personalization query request.
+     * @param timeoutSeconds {@code Double} containing additional configurable timeout(seconds) to
+     *     be sent in the personalization query request.
      * @param callback {@code AdobeCallback<Map<DecisionScope, OptimizeProposition>>} which will be
      *     invoked when decision propositions are received from the Edge network.
      */
@@ -116,16 +116,16 @@ public class Optimize {
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
-            final long timeoutMillis,
+            final double timeoutSeconds,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        updatePropositionsInternal(decisionScopes, xdm, data, timeoutMillis, callback);
+        updatePropositionsInternal(decisionScopes, xdm, data, timeoutSeconds, callback);
     }
 
     private static void updatePropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
-            final long timeoutMillis,
+            final double timeoutSeconds,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
 
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
@@ -176,6 +176,8 @@ public class Optimize {
         if (!OptimizeUtils.isNullOrEmpty(data)) {
             eventData.put(OptimizeConstants.EventDataKeys.DATA, data);
         }
+
+        long timeoutMillis = (long) (timeoutSeconds * 1000);
         eventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, timeoutMillis);
 
         final Event event =

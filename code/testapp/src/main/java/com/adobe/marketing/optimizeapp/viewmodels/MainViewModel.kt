@@ -97,13 +97,13 @@ class MainViewModel: ViewModel() {
      * @param decisionScopes a [List] of [DecisionScope]
      * @param xdm a [Map] of xdm params
      * @param data a [Map] of data
-     * @param timeout a [Long] in milliseconds
+     * @param timeoutSeconds a [Double] in seconds
      */
     fun updatePropositions(
         decisionScopes: List<DecisionScope>,
         xdm: Map<String, String>,
         data: Map<String, Any>,
-        timeout: Long? = null
+        timeoutSeconds: Double? = null
     ) {
         val callback = object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
@@ -119,12 +119,12 @@ class MainViewModel: ViewModel() {
 
         }
         optimizePropositionStateMap.clear()
-        timeout?.let { milliseconds ->
+        timeoutSeconds?.let { seconds ->
             Optimize.updatePropositions(
                 decisionScopes,
                 xdm,
                 data,
-                milliseconds,
+                seconds,
                 callback
             )
         } ?: Optimize.updatePropositions(decisionScopes, xdm, data, callback)
