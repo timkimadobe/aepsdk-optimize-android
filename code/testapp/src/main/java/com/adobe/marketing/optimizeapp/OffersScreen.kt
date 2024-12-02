@@ -182,7 +182,7 @@ fun OffersView(viewModel: MainViewModel) {
                         decisionScopes = decisionScopeList,
                         xdm = mapOf(Pair("xdmKey", "1234")),
                         data = data,
-                        timeout = 200
+                        timeoutSeconds = 0.2
                     )
                 }) {
                     Text(
@@ -203,7 +203,7 @@ fun OffersView(viewModel: MainViewModel) {
 
                     viewModel.getPropositions(
                         decisionScopes = decisionScopeList,
-                        timeout = 200
+                        timeoutSeconds = 0.2
                     )
                 }) {
                     Text(

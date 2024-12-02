@@ -49,7 +49,7 @@ public class Optimize {
      * Experience Edge network.
      *
      * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
-     * can be retrieved using {@link #getPropositions(List, long, AdobeCallback)} API.
+     * can be retrieved using {@link #getPropositions(List, AdobeCallback)} API.
      *
      * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
      *     be updated.
@@ -58,12 +58,13 @@ public class Optimize {
      * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
      *     the personalization query request.
      */
+    @Deprecated
     public static void updatePropositions(
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data) {
-        final long defaultTimeout = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
-        updatePropositions(decisionScopes, xdm, data, defaultTimeout, null);
+
+        updatePropositions(decisionScopes, xdm, data, null);
     }
 
     /**
@@ -88,8 +89,9 @@ public class Optimize {
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        final long defaultTimeout = OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
-        updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeout, callback);
+        final double defaultTimeoutSeconds =
+                OptimizeConstants.EDGE_CONTENT_COMPLETE_RESPONSE_TIMEOUT;
+        updatePropositionsInternal(decisionScopes, xdm, data, defaultTimeoutSeconds, callback);
     }
 
     /**
@@ -98,7 +100,7 @@ public class Optimize {
      * Experience Edge network.
      *
      * <p>The returned decision propositions are cached in-memory in the Optimize SDK extension and
-     * can be retrieved using {@link #getPropositions(List, long, AdobeCallback)} API.
+     * can be retrieved using {@link #getPropositions(List, double, AdobeCallback)} API.
      *
      * @param decisionScopes {@code List<DecisionScope>} containing scopes for which offers need to
      *     be updated.
@@ -106,8 +108,8 @@ public class Optimize {
      *     the personalization query request.
      * @param data {@code Map<String, Object>} containing additional free-form data to be sent in
      *     the personalization query request.
-     * @param timeoutMillis {@code Long} containing additional configurable timeout to be sent in
-     *     the personalization query request.
+     * @param timeoutSeconds {@code Double} containing additional configurable timeout(seconds) to
+     *     be sent in the personalization query request.
      * @param callback {@code AdobeCallback<Map<DecisionScope, OptimizeProposition>>} which will be
      *     invoked when decision propositions are received from the Edge network.
      */
@@ -115,16 +117,16 @@ public class Optimize {
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
-            final long timeoutMillis,
+            final double timeoutSeconds,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        updatePropositionsInternal(decisionScopes, xdm, data, timeoutMillis, callback);
+        updatePropositionsInternal(decisionScopes, xdm, data, timeoutSeconds, callback);
     }
 
     private static void updatePropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
             @Nullable final Map<String, Object> xdm,
             @Nullable final Map<String, Object> data,
-            final long timeoutMillis,
+            final double timeoutSeconds,
             @Nullable final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
 
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
@@ -175,6 +177,9 @@ public class Optimize {
         if (!OptimizeUtils.isNullOrEmpty(data)) {
             eventData.put(OptimizeConstants.EventDataKeys.DATA, data);
         }
+
+        long timeoutMillis = (long) (timeoutSeconds * OptimizeConstants.TIMEOUT_CONVERSION_FACTOR);
+
         eventData.put(OptimizeConstants.EventDataKeys.TIMEOUT, timeoutMillis);
 
         final Event event =
@@ -275,8 +280,8 @@ public class Optimize {
     public static void getPropositions(
             @NonNull final List<DecisionScope> decisionScopes,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        long defaultTimeout = OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT;
-        getPropositionsInternal(decisionScopes, defaultTimeout, callback);
+        final double defaultTimeoutSeconds = OptimizeConstants.GET_RESPONSE_CALLBACK_TIMEOUT;
+        getPropositionsInternal(decisionScopes, defaultTimeoutSeconds, callback);
     }
 
     /**
@@ -290,14 +295,14 @@ public class Optimize {
      */
     public static void getPropositions(
             @NonNull final List<DecisionScope> decisionScopes,
-            final long timeoutMillis,
+            final double timeoutSeconds,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
-        getPropositionsInternal(decisionScopes, timeoutMillis, callback);
+        getPropositionsInternal(decisionScopes, timeoutSeconds, callback);
     }
 
     private static void getPropositionsInternal(
             @NonNull final List<DecisionScope> decisionScopes,
-            final long timeoutMillis,
+            final double timeoutSeconds,
             @NonNull final AdobeCallback<Map<DecisionScope, OptimizeProposition>> callback) {
         if (OptimizeUtils.isNullOrEmpty(decisionScopes)) {
             Log.warning(
@@ -345,8 +350,8 @@ public class Optimize {
                         .setEventData(eventData)
                         .build();
 
-        // Increased default response callback timeout to 10s to ensure prior update propositions
-        // requests have enough time to complete.
+        long timeoutMillis = (long) (timeoutSeconds * OptimizeConstants.TIMEOUT_CONVERSION_FACTOR);
+
         MobileCore.dispatchEventWithResponseCallback(
                 event,
                 timeoutMillis,
