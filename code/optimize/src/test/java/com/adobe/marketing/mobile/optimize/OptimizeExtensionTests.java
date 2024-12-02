@@ -12,6 +12,7 @@
 package com.adobe.marketing.mobile.optimize;
 
 import android.util.Base64;
+import com.adobe.marketing.mobile.AdobeError;
 import com.adobe.marketing.mobile.Event;
 import com.adobe.marketing.mobile.ExtensionApi;
 import com.adobe.marketing.mobile.ExtensionEventListener;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +45,8 @@ import org.mockito.stubbing.Answer;
 @SuppressWarnings("unchecked")
 public class OptimizeExtensionTests {
     private OptimizeExtension extension;
+    private Map<DecisionScope, OptimizeProposition> responseMap;
+    private AdobeError responseError;
 
     // Mocks
     @Mock ExtensionApi mockExtensionApi;
@@ -55,6 +59,12 @@ public class OptimizeExtensionTests {
         extension.onRegistered();
 
         Mockito.clearInvocations(mockExtensionApi);
+    }
+
+    @After
+    public void teardown() {
+        responseMap = null;
+        responseError = null;
     }
 
     @Test
@@ -2220,6 +2230,356 @@ public class OptimizeExtensionTests {
         Assert.assertEquals(0, extension.getCachedPropositions().size());
         Assert.assertEquals(0, extension.getPropositionsInProgress().size());
         Assert.assertEquals(1, extension.getUpdateRequestEventIdsInProgress().size());
+    }
+
+    @Test
+    public void testHandleDebugEvent_validProposition() throws Exception {
+        // setup
+        final Map<String, Object> edgeResponseData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                HashMap.class);
+        final Event testEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle (Spoof)",
+                                "com.adobe.eventType.system",
+                                "com.adobe.eventSource.debug")
+                        .setEventData(edgeResponseData)
+                        .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleDebugEvent(testEvent);
+
+        // verify
+        Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        Assert.assertEquals("com.adobe.eventType.optimize", dispatchedEvent.getType());
+        Assert.assertEquals("com.adobe.eventSource.notification", dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList =
+                (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        Assert.assertNotNull(propositionsList);
+        Assert.assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionsData = propositionsList.get(0);
+        Assert.assertNotNull(propositionsData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
+
+        // for debug events propositions should be cached
+        // in the preview cache and not in the main cache
+        Assert.assertEquals(0, extension.getCachedPropositions().size());
+        Assert.assertEquals(1, extension.getPreviewCachedPropositions().size());
+
+        Assert.assertEquals("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", optimizeProposition.getId());
+
+        Map.Entry<DecisionScope, OptimizeProposition> cachedPropositionEntry =
+                extension.getPreviewCachedPropositions().entrySet().iterator().next();
+        Assert.assertEquals(optimizeProposition.getId(), cachedPropositionEntry.getValue().getId());
+
+        Assert.assertEquals(
+                "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
+                optimizeProposition.getScope());
+        Assert.assertTrue(optimizeProposition.getScopeDetails().isEmpty());
+        Assert.assertEquals(1, optimizeProposition.getOffers().size());
+
+        final Offer offer = optimizeProposition.getOffers().get(0);
+        Assert.assertEquals("xcore:personalized-offer:1111111111111111", offer.getId());
+        Assert.assertEquals("10", offer.getEtag());
+        Assert.assertEquals(
+                "https://ns.adobe.com/experience/offer-management/content-component-html",
+                offer.getSchema());
+        Assert.assertEquals(OfferType.HTML, offer.getType());
+        Assert.assertEquals("<h1>This is a HTML content</h1>", offer.getContent());
+        Assert.assertEquals(1, offer.getCharacteristics().size());
+        Assert.assertEquals("true", offer.getCharacteristics().get("testing"));
+        Assert.assertNull(offer.getLanguage());
+    }
+
+    @Test
+    public void testHandleDebugEvent_getPropositionsForMultipleScopes() throws Exception {
+        // setup
+        final Map<String, Object> testPropositionDataA =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/PROPOSITION_VALID.json"),
+                                HashMap.class);
+        final OptimizeProposition testOptimizePropositionA =
+                OptimizeProposition.fromEventData(testPropositionDataA);
+        Assert.assertNotNull(testOptimizePropositionA);
+        final Map<DecisionScope, OptimizeProposition> cachedPropositions = new HashMap<>();
+        cachedPropositions.put(
+                new DecisionScope(testOptimizePropositionA.getScope()), testOptimizePropositionA);
+
+        final Map<String, Object> testPropositionDataB =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/PROPOSITION_VALID_B.json"),
+                                HashMap.class);
+        final OptimizeProposition testOptimizePropositionB =
+                OptimizeProposition.fromEventData(testPropositionDataB);
+        Assert.assertNotNull(testOptimizePropositionB);
+        cachedPropositions.put(
+                new DecisionScope(testOptimizePropositionB.getScope()), testOptimizePropositionB);
+
+        extension.setCachedPropositions(cachedPropositions);
+
+        // send a debug event with data of Decision Scope B
+        final Map<String, Object> edgeResponseData =
+                new ObjectMapper()
+                        .readValue(
+                                getClass()
+                                        .getClassLoader()
+                                        .getResource("json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                HashMap.class);
+        final Event testEvent =
+                new Event.Builder(
+                                "AEP Response Event Handle (Spoof)",
+                                "com.adobe.eventType.system",
+                                "com.adobe.eventSource.debug")
+                        .setEventData(edgeResponseData)
+                        .build();
+
+        final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+        // test
+        extension.handleDebugEvent(testEvent);
+
+        // verify
+        Mockito.verify(mockExtensionApi, Mockito.times(1)).dispatch(eventCaptor.capture());
+
+        final Event dispatchedEvent = eventCaptor.getValue();
+        Assert.assertEquals("com.adobe.eventType.optimize", dispatchedEvent.getType());
+        Assert.assertEquals("com.adobe.eventSource.notification", dispatchedEvent.getSource());
+
+        final List<Map<String, Object>> propositionsList =
+                (List<Map<String, Object>>) dispatchedEvent.getEventData().get("propositions");
+        Assert.assertNotNull(propositionsList);
+        Assert.assertEquals(1, propositionsList.size());
+
+        final Map<String, Object> propositionsData = propositionsList.get(0);
+        Assert.assertNotNull(propositionsData);
+        final OptimizeProposition optimizeProposition =
+                OptimizeProposition.fromEventData(propositionsData);
+        Assert.assertNotNull(optimizeProposition);
+
+        // decision scopes A and B should be cached in normal cache
+        Assert.assertEquals(2, extension.getCachedPropositions().size());
+
+        // decision scope B should be cached in preview cache
+        Assert.assertEquals(1, extension.getPreviewCachedPropositions().size());
+        Map.Entry<DecisionScope, OptimizeProposition> previewCachedPropositionEntry =
+                extension.getPreviewCachedPropositions().entrySet().iterator().next();
+        Assert.assertEquals(
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                previewCachedPropositionEntry.getValue().getId());
+        Assert.assertEquals(
+                "eyJhY3Rpdml0eUlkIjoieGNvcmU6b2ZmZXItYWN0aXZpdHk6MTExMTExMTExMTExMTExMSIsInBsYWNlbWVudElkIjoieGNvcmU6b2ZmZXItcGxhY2VtZW50OjExMTExMTExMTExMTExMTEifQ==",
+                previewCachedPropositionEntry.getValue().getScope());
+    }
+
+    @Test
+    public void testHandleDebugEvent_InvalidEventType() throws Exception {
+
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                    HashMap.class);
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.edge",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testHandleDebugEvent_InvalidEventSource() throws Exception {
+
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_VALID.json"),
+                                    HashMap.class);
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.personalization:decisions")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testHandleDebugEvent_emptyPayload() throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+            // setup
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_EMPTY_PAYLOAD.json"),
+                                    HashMap.class);
+
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString()));
+        }
+    }
+
+    @Test
+    public void testHandleDebugEvent_emptyProposition() throws Exception {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+
+            final Map<String, Object> edgeResponseData =
+                    new ObjectMapper()
+                            .readValue(
+                                    getClass()
+                                            .getClassLoader()
+                                            .getResource(
+                                                    "json/EVENT_DATA_EDGE_RESPONSE_PROPOSITION_WITH_EMPTY_OFFER.json"),
+                                    HashMap.class);
+
+            final Event testEvent =
+                    new Event.Builder(
+                                    "Test Event",
+                                    "com.adobe.eventType.edge",
+                                    "com.adobe.eventSource.responseContent")
+                            .setEventData(edgeResponseData)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testDebugEvent_nullEventData() {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+
+            // setup
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(null)
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
+    }
+
+    @Test
+    public void testDebugEvent_emptyEventData() {
+        try (MockedStatic<Log> logMockedStatic = Mockito.mockStatic(Log.class)) {
+
+            // setup
+            final Event testEvent =
+                    new Event.Builder(
+                                    "AEP Response Event Handle (Spoof)",
+                                    "com.adobe.eventType.system",
+                                    "com.adobe.eventSource.debug")
+                            .setEventData(new HashMap<>())
+                            .build();
+
+            // test
+            extension.handleDebugEvent(testEvent);
+
+            // verify
+            logMockedStatic.verify(
+                    () ->
+                            Log.debug(
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.anyString(),
+                                    ArgumentMatchers.any()));
+        }
     }
 
     // Helper methods
