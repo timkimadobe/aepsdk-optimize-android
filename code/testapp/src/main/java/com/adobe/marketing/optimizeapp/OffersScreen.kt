@@ -181,7 +181,8 @@ fun OffersView(viewModel: MainViewModel) {
                     viewModel.updatePropositions(
                         decisionScopes = decisionScopeList,
                         xdm = mapOf(Pair("xdmKey", "1234")),
-                        data = data
+                        data = data,
+                        timeoutSeconds = 0.2
                     )
                 }) {
                     Text(
@@ -200,7 +201,10 @@ fun OffersView(viewModel: MainViewModel) {
                     viewModel.jsonDecisionScope?.also { decisionScopeList.add(it) }
                     viewModel.targetMboxDecisionScope?.also { decisionScopeList.add(it) }
 
-                    viewModel.getPropositions(decisionScopes = decisionScopeList)
+                    viewModel.getPropositions(
+                        decisionScopes = decisionScopeList,
+                        timeoutSeconds = 0.2
+                    )
                 }) {
                     Text(
                         text = "Get \n Propositions",
