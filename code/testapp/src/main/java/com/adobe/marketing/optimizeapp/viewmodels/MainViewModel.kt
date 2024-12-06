@@ -71,10 +71,11 @@ class MainViewModel: ViewModel() {
      * Calls the Optimize SDK API to get the Propositions see [Optimize.getPropositions]
      *
      * @param [decisionScopes] a [List] of [DecisionScope]
+     * @param [timeoutSeconds] a [Double] in seconds
      */
-    fun getPropositions(decisionScopes: List<DecisionScope>) {
+    fun getPropositions(decisionScopes: List<DecisionScope>, timeoutSeconds: Double? = null) {
         optimizePropositionStateMap.clear()
-        Optimize.getPropositions(decisionScopes, object: AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>>{
+        val callback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
                 propositions?.forEach {
                     optimizePropositionStateMap[it.key.name] = it.value
@@ -84,8 +85,10 @@ class MainViewModel: ViewModel() {
             override fun fail(error: AdobeError?) {
                 print("Error in getting Propositions.")
             }
-
-        })
+        }
+        timeoutSeconds?.let { seconds ->
+            Optimize.getPropositions(decisionScopes, seconds, callback)
+        } ?: Optimize.getPropositions(decisionScopes, callback)
     }
 
     /**
@@ -94,19 +97,37 @@ class MainViewModel: ViewModel() {
      * @param decisionScopes a [List] of [DecisionScope]
      * @param xdm a [Map] of xdm params
      * @param data a [Map] of data
+     * @param timeoutSeconds a [Double] in seconds
      */
-    fun updatePropositions(decisionScopes: List<DecisionScope> , xdm: Map<String, String> , data: Map<String, Any>) {
-        optimizePropositionStateMap.clear()
-        Optimize.updatePropositions(decisionScopes, xdm, data, object: AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>>{
+    fun updatePropositions(
+        decisionScopes: List<DecisionScope>,
+        xdm: Map<String, String>,
+        data: Map<String, Any>,
+        timeoutSeconds: Double? = null
+    ) {
+        val callback = object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                Log.i("Optimize Test App","Propositions updated successfully.")
+                Log.i("Optimize Test App", "Propositions updated successfully.")
             }
 
             override fun fail(error: AEPOptimizeError?) {
-                Log.i("Optimize Test App","Error in updating Propositions:: ${error?.title ?: "Undefined"}.")
+                Log.i(
+                    "Optimize Test App",
+                    "Error in updating Propositions:: ${error?.title ?: "Undefined"}."
+                )
             }
 
-        })
+        }
+        optimizePropositionStateMap.clear()
+        timeoutSeconds?.let { seconds ->
+            Optimize.updatePropositions(
+                decisionScopes,
+                xdm,
+                data,
+                seconds,
+                callback
+            )
+        } ?: Optimize.updatePropositions(decisionScopes, xdm, data, callback)
     }
 
     /**
