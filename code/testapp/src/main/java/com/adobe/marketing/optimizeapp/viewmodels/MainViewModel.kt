@@ -14,16 +14,24 @@ package com.adobe.marketing.optimizeapp.viewmodels
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
+import com.adobe.marketing.mobile.edge.identity.AuthenticatedState
+import com.adobe.marketing.mobile.edge.identity.Identity
+import com.adobe.marketing.mobile.edge.identity.IdentityItem
+import com.adobe.marketing.mobile.edge.identity.IdentityMap
 import com.adobe.marketing.mobile.optimize.AEPOptimizeError
 import com.adobe.marketing.mobile.optimize.AdobeCallbackWithOptimizeError
 import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.models.OptimizePair
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 
-class MainViewModel: ViewModel() {
+class MainViewModel : ViewModel() {
 
     //Settings textField Values
     var textAssuranceUrl by mutableStateOf("")
@@ -39,22 +47,35 @@ class MainViewModel: ViewModel() {
     var textTargetProductId by mutableStateOf("")
     var textTargetProductCategoryId by mutableStateOf("")
 
-    var targetParamsMbox = mutableStateListOf(OptimizePair("",""))
-    var targetParamsProfile = mutableStateListOf(OptimizePair("",""))
+    var targetParamsMbox = mutableStateListOf(OptimizePair("", ""))
+    var targetParamsProfile = mutableStateListOf(OptimizePair("", ""))
 
     var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
 
-    private val optimizePropositionUpdateCallback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
-        override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-            propositions?.forEach {
-                optimizePropositionStateMap[it.key.name] = it.value
+    var toastMessage = MutableSharedFlow<String>(extraBufferCapacity = 2)
+
+    private val optimizePropositionUpdateCallback =
+        object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
+            override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
+                Log.d(
+                    "Sagar",
+                    "Proposition onUpdate Callback Triggered : propositions - ${propositions?.keys?.size}"
+                )
+//                toastMessage.tryEmit("PROPOSITIONS - ${propositions?.keys?.size}")
+                propositions?.forEach {
+                    optimizePropositionStateMap[it.key.name] = it.value
+                }
+            }
+
+            override fun fail(error: AdobeError?) {
+                Log.d(
+                    "Sagar",
+                    "Proposition onUpdate Callback Error Triggered : ${error?.errorName}"
+                )
+//                toastMessage.tryEmit("PROPOSITIONS ERROR - ${error?.errorName}")
+                print("Error in updating OptimizeProposition:: ${error?.errorName ?: "Undefined"}.")
             }
         }
-
-        override fun fail(error: AdobeError?) {
-            print("Error in updating OptimizeProposition:: ${error?.errorName ?: "Undefined"}.")
-        }
-    }
 
     init {
         Optimize.onPropositionsUpdate(optimizePropositionUpdateCallback)
@@ -69,65 +90,124 @@ class MainViewModel: ViewModel() {
 
     /**
      * Calls the Optimize SDK API to get the Propositions see [Optimize.getPropositions]
-     *
-     * @param [decisionScopes] a [List] of [DecisionScope]
-     * @param [timeoutSeconds] a [Double] in seconds
      */
-    fun getPropositions(decisionScopes: List<DecisionScope>, timeoutSeconds: Double? = null) {
+    fun getPropositions() {
         optimizePropositionStateMap.clear()
+
+        val decisionScopeList = getDecisionScopes()
+        val timeout = 1.0 //seconds
         val callback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
+                Log.d(
+                    "Sagar",
+                    "Proposition GET Callback Triggered : propositions - ${propositions?.keys?.size}"
+                )
+                toastMessage.tryEmit("GET SUCCESS - ${propositions?.keys?.size}")
                 propositions?.forEach {
                     optimizePropositionStateMap[it.key.name] = it.value
                 }
             }
 
             override fun fail(error: AdobeError?) {
+                Log.d("Sagar", "Proposition GET Callback Error Triggered : ${error?.errorName}")
+                toastMessage.tryEmit("GET FAILED - ${error?.errorName}")
                 print("Error in getting Propositions.")
             }
         }
-        timeoutSeconds?.let { seconds ->
-            Optimize.getPropositions(decisionScopes, seconds, callback)
-        } ?: Optimize.getPropositions(decisionScopes, callback)
+
+        Optimize.getPropositions(
+            decisionScopeList,
+            timeout,
+            callback
+        )
     }
 
-    /**
-     * Calls the Optimize SDK API to update Propositions see [Optimize.updatePropositions]
-     *
-     * @param decisionScopes a [List] of [DecisionScope]
-     * @param xdm a [Map] of xdm params
-     * @param data a [Map] of data
-     * @param timeoutSeconds a [Double] in seconds
-     */
-    fun updatePropositions(
-        decisionScopes: List<DecisionScope>,
-        xdm: Map<String, String>,
-        data: Map<String, Any>,
-        timeoutSeconds: Double? = null
-    ) {
-        val callback = object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
-            override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                Log.i("Optimize Test App", "Propositions updated successfully.")
+    fun updatePropositions() {
+        updateIdentity()
+
+        val decisionScopeList = getDecisionScopes()
+        val targetParams = getTargetParams()
+        val data = getDataMap(targetParams)
+
+        val callback =
+            object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
+                override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
+                    Log.d(
+                        "Sagar",
+                        "Proposition UPDATE Callback Triggered : propositions - ${propositions?.keys?.size}"
+                    )
+                    toastMessage.tryEmit("UPDATE SUCCESS - ${propositions?.keys?.size}")
+                    Log.d("Sagar", "ViewModel Callback Success")
+                }
+
+                override fun fail(error: AEPOptimizeError?) {
+                    Log.d(
+                        "Sagar",
+                        "Proposition UPDATE Callback Error Triggered : ${error?.adobeError?.errorName}"
+                    )
+                    toastMessage.tryEmit("UPDATE FAILED - ${error?.adobeError?.errorName}")
+                    Log.d("Sagar", "ViewModel Callback Failure")
+                }
+
             }
 
-            override fun fail(error: AEPOptimizeError?) {
-                Log.i(
-                    "Optimize Test App",
-                    "Error in updating Propositions:: ${error?.title ?: "Undefined"}."
-                )
-            }
-
-        }
         optimizePropositionStateMap.clear()
-        timeoutSeconds?.let { seconds ->
-            Optimize.updatePropositions(
-                decisionScopes,
-                xdm,
-                data,
-                seconds,
-                callback
-            )
-        } ?: Optimize.updatePropositions(decisionScopes, xdm, data, callback)
+        Optimize.updatePropositions(
+            decisionScopeList,
+            mapOf(Pair("xdmKey", "1234")),
+            data,
+            1.0,
+            callback
+        )
+    }
+
+    private fun getDataMap(targetParams: Map<String, String>): MutableMap<String, Any> {
+        val data = mutableMapOf<String, Any>()
+        if (targetParams.isNotEmpty()) {
+            data["__adobe"] = mapOf<String, Any>(Pair("target", targetParams))
+        }
+        data["dataKey"] = "5678"
+        return data
+    }
+
+    private fun getTargetParams(): Map<String, String> {
+        val targetParams = mutableMapOf<String, String>()
+
+        if (textTargetMbox.isNotEmpty()) {
+            targetParamsMbox.forEach {
+                if (it.key.isNotEmpty() && it.value.isNotEmpty()) {
+                    targetParams[it.key] = it.value
+                }
+            }
+
+            targetParamsProfile.forEach {
+                if (it.key.isNotEmpty() && it.value.isNotEmpty()) {
+                    targetParams[it.key] = it.value
+                }
+            }
+
+            if (isValidOrder) {
+                targetParams["orderId"] = textTargetOrderId
+                targetParams["orderTotal"] = textTargetOrderTotal
+                targetParams["purchasedProductIds"] = textTargetPurchaseId
+            }
+
+            if (isValidProduct) {
+                targetParams["productId"] = textTargetProductId
+                targetParams["categoryId"] = textTargetProductCategoryId
+            }
+        }
+        return targetParams
+    }
+
+    private fun updateIdentity() {
+        // Send a custom Identity in IdentityMap as primary identifier to Edge network in personalization query request.
+        val identityMap = IdentityMap()
+        identityMap.addItem(
+            IdentityItem("1111", AuthenticatedState.AUTHENTICATED, true),
+            "userCRMID"
+        )
+        Identity.updateIdentities(identityMap)
     }
 
     /**
@@ -141,23 +221,23 @@ class MainViewModel: ViewModel() {
     //End: Calls to Optimize SDK API's
 
 
-    var textDecisionScope: DecisionScope? = null
-    var imageDecisionScope: DecisionScope? = null
-    var htmlDecisionScope: DecisionScope? = null
-    var jsonDecisionScope: DecisionScope? = null
-    var targetMboxDecisionScope: DecisionScope? = null
-
-    fun updateDecisionScopes() {
-        textDecisionScope = DecisionScope(textOdeText)
-        imageDecisionScope = DecisionScope(textOdeImage)
-        htmlDecisionScope = DecisionScope(textOdeHtml)
-        jsonDecisionScope = DecisionScope(textOdeJson)
-        targetMboxDecisionScope = DecisionScope(textTargetMbox)
+    private fun getDecisionScopes(): List<DecisionScope> {
+        return listOf(
+            DecisionScope(textOdeText),
+            DecisionScope(textOdeImage),
+            DecisionScope(textOdeHtml),
+            DecisionScope(textOdeJson),
+            DecisionScope(textTargetMbox)
+        )
     }
 
-    val isValidOrder: Boolean
+    fun clearToast() {
+        toastMessage.tryEmit("")
+    }
+
+    private val isValidOrder: Boolean
         get() = textTargetOrderId.isNotEmpty() && (textTargetOrderTotal.isNotEmpty() && textTargetOrderTotal.toDouble() != null) && textTargetPurchaseId.isNotEmpty()
 
-    val isValidProduct: Boolean
+    private val isValidProduct: Boolean
         get() = textTargetProductId.isNotEmpty() && textTargetProductCategoryId.isNotEmpty()
 }
