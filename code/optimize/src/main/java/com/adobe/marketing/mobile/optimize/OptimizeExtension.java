@@ -1000,7 +1000,6 @@ class OptimizeExtension extends Extension {
      * @param event the debug {@link Event} to be handled.
      */
     void handleDebugEvent(@NonNull final Event event) {
-        android.util.Log.d("Sagar", event.getUniqueIdentifier() + " | handleDebugEvent: name - " + event.getName() + " | type - " + event.getType());
         try {
             if (OptimizeUtils.isNullOrEmpty(event.getEventData())) {
                 Log.debug(
@@ -1055,7 +1054,6 @@ class OptimizeExtension extends Extension {
                 return;
             }
 
-            android.util.Log.d("Sagar", event.getUniqueIdentifier() + " | previewCachedPropositions PUTALL event propositions: name - " + event.getName() + " | type - " + event.getType());
             previewCachedPropositions.putAll(propositionsMap);
 
             final List<Map<String, Object>> propositionsList = new ArrayList<>();
