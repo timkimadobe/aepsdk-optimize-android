@@ -14,7 +14,6 @@ package com.adobe.marketing.optimizeapp.viewmodels
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.adobe.marketing.mobile.AdobeCallbackWithError
 import com.adobe.marketing.mobile.AdobeError
 import com.adobe.marketing.mobile.edge.identity.AuthenticatedState
@@ -27,9 +26,6 @@ import com.adobe.marketing.mobile.optimize.DecisionScope
 import com.adobe.marketing.mobile.optimize.Optimize
 import com.adobe.marketing.mobile.optimize.OptimizeProposition
 import com.adobe.marketing.optimizeapp.models.OptimizePair
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
 
@@ -52,27 +48,15 @@ class MainViewModel : ViewModel() {
 
     var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
 
-    var toastMessage = MutableSharedFlow<String>(extraBufferCapacity = 2)
-
     private val optimizePropositionUpdateCallback =
         object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                Log.d(
-                    "Sagar",
-                    "Proposition onUpdate Callback Triggered : propositions - ${propositions?.keys?.size}"
-                )
-//                toastMessage.tryEmit("PROPOSITIONS - ${propositions?.keys?.size}")
                 propositions?.forEach {
                     optimizePropositionStateMap[it.key.name] = it.value
                 }
             }
 
             override fun fail(error: AdobeError?) {
-                Log.d(
-                    "Sagar",
-                    "Proposition onUpdate Callback Error Triggered : ${error?.errorName}"
-                )
-//                toastMessage.tryEmit("PROPOSITIONS ERROR - ${error?.errorName}")
                 print("Error in updating OptimizeProposition:: ${error?.errorName ?: "Undefined"}.")
             }
         }
@@ -98,19 +82,12 @@ class MainViewModel : ViewModel() {
         val timeout = 1.0 //seconds
         val callback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                Log.d(
-                    "Sagar",
-                    "Proposition GET Callback Triggered : propositions - ${propositions?.keys?.size}"
-                )
-                toastMessage.tryEmit("GET SUCCESS - ${propositions?.keys?.size}")
                 propositions?.forEach {
                     optimizePropositionStateMap[it.key.name] = it.value
                 }
             }
 
             override fun fail(error: AdobeError?) {
-                Log.d("Sagar", "Proposition GET Callback Error Triggered : ${error?.errorName}")
-                toastMessage.tryEmit("GET FAILED - ${error?.errorName}")
                 print("Error in getting Propositions.")
             }
         }
@@ -132,23 +109,15 @@ class MainViewModel : ViewModel() {
         val callback =
             object : AdobeCallbackWithOptimizeError<Map<DecisionScope, OptimizeProposition>> {
                 override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
-                    Log.d(
-                        "Sagar",
-                        "Proposition UPDATE Callback Triggered : propositions - ${propositions?.keys?.size}"
-                    )
-                    toastMessage.tryEmit("UPDATE SUCCESS - ${propositions?.keys?.size}")
-                    Log.d("Sagar", "ViewModel Callback Success")
+                    Log.i("Optimize Test App", "Propositions updated successfully.")
                 }
 
                 override fun fail(error: AEPOptimizeError?) {
-                    Log.d(
-                        "Sagar",
-                        "Proposition UPDATE Callback Error Triggered : ${error?.adobeError?.errorName}"
+                    Log.i(
+                        "Optimize Test App",
+                        "Error in updating Propositions:: ${error?.title ?: "Undefined"}."
                     )
-                    toastMessage.tryEmit("UPDATE FAILED - ${error?.adobeError?.errorName}")
-                    Log.d("Sagar", "ViewModel Callback Failure")
                 }
-
             }
 
         optimizePropositionStateMap.clear()
@@ -231,12 +200,8 @@ class MainViewModel : ViewModel() {
         )
     }
 
-    fun clearToast() {
-        toastMessage.tryEmit("")
-    }
-
     private val isValidOrder: Boolean
-        get() = textTargetOrderId.isNotEmpty() && (textTargetOrderTotal.isNotEmpty() && textTargetOrderTotal.toDouble() != null) && textTargetPurchaseId.isNotEmpty()
+        get() = textTargetOrderId.isNotEmpty() && (textTargetOrderTotal.isNotEmpty()) && textTargetPurchaseId.isNotEmpty()
 
     private val isValidProduct: Boolean
         get() = textTargetProductId.isNotEmpty() && textTargetProductCategoryId.isNotEmpty()

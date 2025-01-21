@@ -11,7 +11,6 @@
  */
 package com.adobe.marketing.optimizeapp
 
-import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -41,16 +39,6 @@ fun MainScreen(viewModel: MainViewModel) {
         BottomNavigationScreen.SettingsScreen
     )
 
-    val context = LocalContext.current
-    val toastMessage by viewModel.toastMessage.collectAsState("")
-
-    LaunchedEffect(toastMessage) {
-        if(toastMessage.isNotEmpty()){
-            Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
-            viewModel.clearToast()
-        }
-    }
-
     Scaffold(bottomBar = {
         OffersBottomNavigation(navController = navController, items = bottomNavigationItems, onNavigationChange = {
             appBarTitle = when(it){
@@ -62,7 +50,7 @@ fun MainScreen(viewModel: MainViewModel) {
         topBar = {
             TopAppBar {
                 Text(
-                    text = "$appBarTitle",
+                    text = appBarTitle,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.h6

@@ -15,8 +15,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.optimizeapp.ui.theme.OptimizeTheme
 import com.adobe.marketing.optimizeapp.viewmodels.MainViewModel
@@ -34,22 +32,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        MobileCore.setApplication(getApplication())
+        MobileCore.setApplication(application)
         MobileCore.lifecycleStart(null)
     }
 
     override fun onPause() {
         super.onPause()
         MobileCore.lifecyclePause()
-    }
-}
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    OptimizeTheme {
-//        MainScreen()
     }
 }

@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.adobe.marketing.mobile.optimize.Offer
 import com.adobe.marketing.mobile.optimize.OfferType
@@ -156,7 +157,7 @@ fun OffersView(viewModel: MainViewModel) {
                 }
             ) {
                 Text(
-                    text = "Update",
+                    text = "Update Propositions",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.button
                 )
@@ -169,7 +170,7 @@ fun OffersView(viewModel: MainViewModel) {
                 }
             ) {
                 Text(
-                    text = "Get",
+                    text = "Get Propositions",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.button
                 )
@@ -182,7 +183,7 @@ fun OffersView(viewModel: MainViewModel) {
                 }
             ) {
                 Text(
-                    text = "Clear",
+                    text = "Clear Propositions",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.button
                 )
@@ -297,6 +298,7 @@ fun TextOffer(offer: Offer) {
     )
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun ImageOffers(offers: List<Offer>? = null, listState: LazyListState? = null) {
     Column(
