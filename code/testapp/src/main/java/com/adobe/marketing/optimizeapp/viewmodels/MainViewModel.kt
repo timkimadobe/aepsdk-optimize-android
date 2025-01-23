@@ -48,6 +48,9 @@ class MainViewModel : ViewModel() {
 
     var optimizePropositionStateMap = mutableStateMapOf<String, OptimizeProposition>()
 
+    //Preferences
+    var timeoutConfig = mutableDoubleStateOf(5.0) //Seconds
+
     private val optimizePropositionUpdateCallback =
         object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
@@ -79,7 +82,6 @@ class MainViewModel : ViewModel() {
         optimizePropositionStateMap.clear()
 
         val decisionScopeList = getDecisionScopes()
-        val timeout = 1.0 //seconds
         val callback = object : AdobeCallbackWithError<Map<DecisionScope, OptimizeProposition>> {
             override fun call(propositions: Map<DecisionScope, OptimizeProposition>?) {
                 propositions?.forEach {
@@ -94,7 +96,7 @@ class MainViewModel : ViewModel() {
 
         Optimize.getPropositions(
             decisionScopeList,
-            timeout,
+            timeoutConfig.doubleValue,
             callback
         )
     }
@@ -125,7 +127,7 @@ class MainViewModel : ViewModel() {
             decisionScopeList,
             mapOf(Pair("xdmKey", "1234")),
             data,
-            1.0,
+            timeoutConfig.doubleValue,
             callback
         )
     }
