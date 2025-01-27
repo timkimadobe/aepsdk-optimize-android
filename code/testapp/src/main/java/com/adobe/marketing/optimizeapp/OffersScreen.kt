@@ -182,7 +182,7 @@ fun OffersView(viewModel: MainViewModel) {
                         decisionScopes = decisionScopeList,
                         xdm = mapOf(Pair("xdmKey", "1234")),
                         data = data,
-                        timeoutSeconds = 0.2
+                        timeoutSeconds = 5.0
                     )
                 }) {
                     Text(
